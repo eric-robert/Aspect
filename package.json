@@ -1,0 +1,20 @@
+{
+  "name": "aspect",
+  "version": "0.0.1",
+  "description": "a wrapper for socket.io that runs a node.js real-time game server",
+  "main": "dist/index.js",
+  "author": "eric-robert",
+  "license": "MIT",
+  "scripts": {
+    "dev-server": "nodemon ./examples/server/server.ts --ignore",
+    "dev-client": "nodemon ./examples/client/client.ts --ignore"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "cubic-array": "^1.0.2",
+    "socket.io": "^4.4.1",
+    "socket.io-client": "^4.4.1"
+  }
+}
