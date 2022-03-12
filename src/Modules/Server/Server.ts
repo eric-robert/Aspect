@@ -1,49 +1,71 @@
-import { Server, Socket } from "socket.io";
-import { Connection } from "../../Connection/Connection";
-import { EngineEvents } from "../../Engine/Engine.types";
-import { EngineModule } from "../../Engine/EngineModule";
-import { SyncloopConstructor } from "../../Syncloop/SyncLoop.types";
-import { SyncSubscriber } from "../../SyncSubscriber/SyncSubscriber";
-import { ServerSettings } from "./Server.types";
+import { Server, Socket } from "socket.io"
+import { Connection } from "../../classes/connection/Connection"
+import { SyncLoop } from "../../classes/syncloop/SyncLoop"
+import { HandshakeModule } from "../../engine/modules/Handshake.module"
+import { EngineModule } from "../../Engine/modules/Module"
+import { Events } from "../../events"
+import * as T from './Server.types'
 
 export class ServerModule extends EngineModule {
 
-    private connections : SyncSubscriber = new SyncSubscriber()
-
+    // Pull from settings
     private port : number
-    private server : Server
+    private ms_per_tick : number
+    private ticks_per_sync : number
 
+    private server : Server
+    private syncloop : SyncLoop
+
+    // Modules
+    private _handshake_module : HandshakeModule
+    
     init () {
-        this.port = this.engine.withSetting( ServerSettings.PORT, 3000) as number
+
+        // Grab modules
+        this._handshake_module = this.engine.withHandshakeModule()
+
+        // Grab settings
+        this.port = this.engine.withSetting( T.ServerSettings.PORT, 3000) as number
+        this.ms_per_tick = this.engine.withSetting( T.ServerSettings.MS_PER_TICK, 1000) as number
+        this.ticks_per_sync = this.engine.withSetting( T.ServerSettings.TICKS_PER_SYNC, 10) as number
+
+        // Add SyncLoop to handshake
+        this._handshake_module.add_stage({
+            name : 'syncloop',
+            initiate : () => this.syncloop.get_state(),
+            recieve : (_ : boolean, success : () => void) => success()
+        })
+
     }
 
     start () {
-        this.log(`Starting server on port ${this.port}`)
+
+        // Start server
+        this.logger.log('info', `Starting server on port ${this.port}`)
         this.server = new Server( this.port, { serveClient: false, cors: {origin: '*'}})
         this.server.on('connection', this.on_websocket_connection.bind(this))
 
-        this.engine.startSyncLoop({
-            tick_speed : this.engine.withSetting(ServerSettings.MS_PER_TICK, 20) as number,
-            sync_speed : this.engine.withSetting(ServerSettings.TICKS_PER_SYNC, 5) as number,
-            on_tick : () => {
-                this.eventBus.emit(EngineEvents.GameTick)
-                this.eventBus.process_all()
-            }
-        })
+        // Start sync loop
+        this.syncloop = new SyncLoop({
+            ms_per_tick : this.ms_per_tick,
+            ticks_per_sync : this.ticks_per_sync,
+            on_tick : this.on_tick.bind(this),
+            on_sync : this.on_sync.bind(this)
+        }, this.logger)
+
     }
 
     private on_websocket_connection ( socket : Socket ) {
-        const connection = new Connection({ socket })
-        this.log(`New connection from ${connection.get_id()}`)
-        this.connections.join_groups(connection, [ 'all' ])
-        
-        const handshake = this.engine.withHandshake()
-        handshake.add_stage(this.send_sync_loop.bind(this))
-        handshake.connection_setup(connection)
+        const connection = new Connection({ socket, options : {} }, this.logger)
+        this.logger.log('info', `New connection from ${connection.get_id()}`)
+        this._handshake_module.run_handshake( connection )
     }
 
-    private send_sync_loop ( _ : any, send : (_:SyncloopConstructor) => void ) {
-        send(this.engine.getSyncLoop())
+    private on_tick () {
+        this.event_bus.emit(Events.GAME_TICK)
+        this.event_bus.do_processAll()
     }
+
+    private on_sync () {}
 
 }

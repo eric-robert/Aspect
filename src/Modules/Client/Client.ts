@@ -1,48 +1,70 @@
-import { Socket } from "socket.io";
-import { io } from "socket.io-client";
-import { Connection } from "../../Connection/Connection"
-import { EngineEvents } from "../../Engine/Engine.types";
-import { EngineModule } from "../../Engine/EngineModule";
-import { SyncloopConstructor } from "../../Syncloop/SyncLoop.types";
+import { Server, Socket } from "socket.io"
+import { io } from "socket.io-client"
+import { Connection } from "../../classes/connection/Connection"
+import { SyncLoop } from "../../classes/syncloop/SyncLoop"
+import { SyncLoopSyncData } from "../../classes/Syncloop/SyncLoop.types"
+import { HandshakeModule } from "../../engine/modules/Handshake.module"
+import { EngineModule } from "../../Engine/modules/Module"
+import { Events } from "../../events"
+import * as T from './Client.types'
 
 export class ClientModule extends EngineModule {
 
+    // Pull from settings
+    private serverIP
+
+    // Instances
     private socket : Socket
     private connection : Connection
+    private syncloop : SyncLoop
+
+    // Modules
+    private _handshake_module : HandshakeModule
+
+    init () {
+
+        // Grab modules
+        this._handshake_module = this.engine.withHandshakeModule()
+
+        // Grab settings
+        this.serverIP = this.engine.withSetting( T.ClientSettings.SERVER_IP, 'localhost:3000') as string
+
+        // Add SyncLoop to handshake
+        this._handshake_module.add_stage({
+            name : 'syncloop',
+            recieve : (_ : SyncLoopSyncData, success : () => void) => {
+                this.on_sync_loop_sync(_)
+                success()
+            }
+        })
+    }
 
     start () {
-
-        const ip = this.engine.withSetting('socket.ip', 'localhost:3000')
-        this.log(`Connecting to ${ip}`)
-
-        this.socket = (io('ws://' + ip) as unknown) as Socket
-        this.connection = new Connection({ socket : this.socket })
+        // Connect to server
+        this.logger.log('info', `Connecting to ${this.serverIP}`)
+        this.socket = (io('ws://' + this.serverIP) as unknown) as Socket
+        this.connection = new Connection({ socket : this.socket, options : {} }, this.logger)
         this.socket.on('connect', this.on_server_connection.bind(this))
     }
 
-    // Handlers
+    // Event callbacks
 
     private on_server_connection () {
-        this.log('Connected to server')
-
-        const providedHandshake = this.engine.withHandshake()
-        providedHandshake.add_stage(this.recieve_sync_loop.bind(this))
-        providedHandshake.connection_setup(this.connection)
-
+        this.logger.log('debug', 'Connected to server')
+        this._handshake_module.run_handshake( this.connection )
     }
 
-    private recieve_sync_loop (sent : SyncloopConstructor, done : () => void ) {
-        this.engine.startSyncLoop({
-            ...sent,
-            on_tick : () => {
-                this.eventBus.emit(EngineEvents.GameTick)
-                this.eventBus.process_all()
-            }
-        })
-        done()
+    private on_sync_loop_sync (data : SyncLoopSyncData) {
+        this.syncloop = new SyncLoop({
+            ...data,
+            on_tick : this.on_tick.bind(this)
+        }, this.logger)
     }
 
-    // Getters and setters
+    private on_tick () {
+        this.event_bus.emit(Events.GAME_TICK)
+        this.event_bus.do_processAll()
+    }
 
     get_connection () : Connection { return this.connection }
 

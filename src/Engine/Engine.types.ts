@@ -1,25 +1,21 @@
-import { HandshakeModule } from "../Handshake/Handshake.module"
-import { HandshakeModuleClass } from "../Handshake/Handshake.types"
-import { EngineModule } from "./EngineModule"
+import { AspectEngine } from "./Engine";
+import { Logger } from "winston";
+import { EngineModule } from "./modules/Module";
+import { HandshakeModule } from "./modules/Handshake.module";
 
-export interface EngineType {}
+export interface AspectEngineConstuctor {
 
-export interface ModuleClass {
-    new(AspectEngine, number): EngineModule 
-}
-
-export interface EngineConstructor {
-    logLevel ?: number,
+    modules : ModuleBuilder<EngineModule>[],
+    handshakeModule : ModuleBuilder<HandshakeModule>,
     settings : EngineSettings
 
-    modules : ModuleClass[],
-    handshake : HandshakeModuleClass
 }
+
+export interface ModuleBuilder<T> {
+    new(engine : AspectEngine, root_logger : Logger) : T
+}
+
 export type ValidSettings = string | number
 export interface EngineSettings {
     [key: string]: ValidSettings
-}
-
-export const EngineEvents = {
-    GameTick : "GameTick"
 }
