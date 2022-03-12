@@ -32,7 +32,7 @@ export class ClientModule extends EngineModule {
         // Add SyncLoop to handshake
         this._handshake_module.add_stage({
             name : 'syncloop',
-            recieve : (_ : SyncLoopSyncData, success : () => void) => {
+            recieve : (id : number, _ : SyncLoopSyncData, success : () => void) => {
                 this.on_sync_loop_sync(_)
                 success()
             }

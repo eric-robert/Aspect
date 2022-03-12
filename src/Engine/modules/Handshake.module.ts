@@ -1,27 +1,18 @@
-import { Logger } from "winston";
 import { Connection } from "../../classes/connection/Connection";
 import { Handshake } from "../../classes/handshake/Handshake";
 import { HandshakeStage } from "../../classes/handshake/Handshake.types";
-import { AspectEngine } from "../Engine";
 import { EngineModule } from "./Module";
 
 export class HandshakeModule extends EngineModule {
 
     private stages : HandshakeStage<any, any>[] = []
     
-    on_handshakeFail () {
-        this.logger.log('error', 'Handshake failed')
-    }
-    on_handshakeSuccess () {
-        this.logger.log('info', 'Handshake successful')
-    }
-
     add_stage<Send, Recieve> (stage : HandshakeStage<Send, Recieve>) {
         this.stages.push(stage)
     }
 
 
-    run_handshake ( connection : Connection ) {
+    run_handshake ( connection : Connection) {
         this.logger.log('info', 'Running handshake')
 
         const handshake = new Handshake(this.logger)
@@ -44,15 +35,24 @@ export class HandshakeModule extends EngineModule {
             connection.send(open_event, data)
         }
 
-        handshake.init({
-            on_finish : this.on_handshakeSuccess.bind(this),
-            on_failure : this.on_handshakeFail.bind(this),
-            on_open : do_open.bind(this),
-            on_close : do_close.bind(this),
-            on_send : on_send.bind(this)
-        })
+        return new Promise((resolve, reject) => {
+            handshake.init({
+                id : connection.get_id(),
+                on_finish : () => {
+                    this.logger.log('info', 'Handshake success')
+                    resolve(true)
+                },
+                on_failure : () => {
+                    this.logger.log('error', 'Handshake failed')
+                    reject()
+                },
+                on_open : do_open.bind(this),
+                on_close : do_close.bind(this),
+                on_send : on_send.bind(this)
+            })
 
-        handshake.start()
+            handshake.start()
+        })
     }
 
 

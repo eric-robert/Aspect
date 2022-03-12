@@ -43,6 +43,7 @@ class HandshakeBridge {
     private init_handshake (handshake : Handshake, pipe : number) {
 
         handshake.init({
+            id : -1,
             on_finish() {},
             on_failure() {},
             
@@ -89,7 +90,7 @@ test('Simple Handshake', () => {
         initiate : () => {
             return "Hello"
         },
-        recieve(data, success, fail) {
+        recieve(id, data, success, fail) {
             success()
         }
     })
@@ -97,7 +98,7 @@ test('Simple Handshake', () => {
 
     bridge.add_stage('responder', {
         name : 'test',
-        recieve(data, success, fail) {
+        recieve(id, data, success, fail) {
             success("Hi")
         }
     })

@@ -6,6 +6,7 @@ export class Handshake {
     private stages : T.HandshakeStage<any, any>[] = []
     private current : number = -1
     private has_sent : boolean = false
+    private id : number 
 
     // Communication with networking or other modules
     private do_open : T.Open
@@ -22,6 +23,7 @@ export class Handshake {
     }
 
     public init (config : T.HandshakeConstructor) {
+        this.id = config.id
         this.do_open = config.on_open
         this.do_close = config.on_close
         this.do_send = config.on_send
@@ -65,7 +67,7 @@ export class Handshake {
 
         // If we have an initiator, send the first message
         if (target_stage.initiate) {
-            this.do_send(target_stage.initiate())
+            this.do_send(target_stage.initiate(this.id))
             this.has_sent = true
         }
 
@@ -88,7 +90,7 @@ export class Handshake {
         // You are the listener recieving first message
         else if (!initiator && !has_sent) {
             this.logger.log("debug", `listener recieved first message ` + recieved)
-            target_stage.recieve( recieved, 
+            target_stage.recieve( this.id, recieved, 
                 (_:any) => this.do_send(_ || true),
                 () => {
                     this.do_send(null)
@@ -101,7 +103,7 @@ export class Handshake {
         // You are the initiator recieving first message
         else if (initiator) {
             this.logger.log("debug", `initiator recieved first message ` + recieved)
-            target_stage.recieve( recieved, 
+            target_stage.recieve( this.id, recieved, 
                 () => {
                     this.do_send(true)
                     this.progress_stage()

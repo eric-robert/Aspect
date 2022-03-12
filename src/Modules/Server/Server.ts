@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io"
 import { Connection } from "../../classes/connection/Connection"
+import { SyncableGroup } from "../../classes/syncableGroup/SyncableGroup"
 import { SyncLoop } from "../../classes/syncloop/SyncLoop"
 import { HandshakeModule } from "../../engine/modules/Handshake.module"
 import { EngineModule } from "../../Engine/modules/Module"
@@ -15,6 +16,7 @@ export class ServerModule extends EngineModule {
 
     private server : Server
     private syncloop : SyncLoop
+    private syncGroup : SyncableGroup<Connection>
 
     // Modules
     private _handshake_module : HandshakeModule
@@ -23,6 +25,9 @@ export class ServerModule extends EngineModule {
 
         // Grab modules
         this._handshake_module = this.engine.withHandshakeModule()
+
+        // Create instances
+        this.syncGroup = new SyncableGroup<Connection>()
 
         // Grab settings
         this.port = this.engine.withSetting( T.ServerSettings.PORT, 3000) as number
@@ -33,7 +38,7 @@ export class ServerModule extends EngineModule {
         this._handshake_module.add_stage({
             name : 'syncloop',
             initiate : () => this.syncloop.get_state(),
-            recieve : (_ : boolean, success : () => void) => success()
+            recieve : (id : number, _ : boolean, success : () => void) => success()
         })
 
     }
@@ -55,10 +60,21 @@ export class ServerModule extends EngineModule {
 
     }
 
+    add_to_syncgroup ( connection_id : number, groups : string[] ) {
+        this.syncGroup.join_groups( this.syncGroup.get_by_id(connection_id), groups )
+    }
+
     private on_websocket_connection ( socket : Socket ) {
         const connection = new Connection({ socket, options : {} }, this.logger)
         this.logger.log('info', `New connection from ${connection.get_id()}`)
+
+        // Add to sync group
+        this.syncGroup.add_entity( connection.get_id(), connection )
+
+        // Run the handshake itself
         this._handshake_module.run_handshake( connection )
+            .then( () => { })
+            .catch( (err) => { })
     }
 
     private on_tick () {

@@ -7,8 +7,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "dev-server": "nodemon ./examples/server.ts --ignore",
-    "dev-client": "nodemon ./examples/client.ts --ignore"
+    "dev-server": "nodemon ./example/server.ts --ignore",
+    "dev-client": "nodemon ./example/client.ts --ignore"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
