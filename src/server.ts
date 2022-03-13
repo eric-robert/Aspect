@@ -4,6 +4,8 @@ import { HandshakeModule } from "./engine/modules/Handshake.module";
 import { EngineModule } from "./engine/modules/Module";
 import { ServerModule } from "./modules/server/Server";
 
+export * as core from './core'
+
 interface construct {
     modules ?: ModuleBuilder<EngineModule>[]
     handshake ?: ModuleBuilder<HandshakeModule>
