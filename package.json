@@ -1,6 +1,6 @@
 {
   "name": "fire-aspect",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a wrapper for socket.io that runs a node.js real-time game server",
   "main": "dist/index.js",
   "author": "eric-robert",
