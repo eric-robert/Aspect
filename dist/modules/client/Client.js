@@ -49,7 +49,7 @@ class ClientModule extends Module_1.EngineModule {
         // Connect to server
         this.logger.log('info', `Connecting to ${this.serverIP}`);
         this.socket = (0, socket_io_client_1.io)('ws://' + this.serverIP);
-        this.connection = new Connection_1.Connection({ socket: this.socket, options: {} }, this.logger);
+        this.connection = new Connection_1.Connection({ socket: this.socket, options: {} });
         this.socket.on('connect', this.on_server_connection.bind(this));
     }
     // Event callbacks
@@ -61,7 +61,7 @@ class ClientModule extends Module_1.EngineModule {
         this.syncloop = new SyncLoop_1.SyncLoop({
             ...data,
             on_tick: this.on_tick.bind(this)
-        }, this.logger);
+        });
     }
     on_tick() {
         this.event_bus.emit(events_1.Events.GAME_TICK);

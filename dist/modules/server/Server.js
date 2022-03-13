@@ -59,13 +59,13 @@ class ServerModule extends Module_1.EngineModule {
             ticks_per_sync: this.ticks_per_sync,
             on_tick: this.on_tick.bind(this),
             on_sync: this.on_sync.bind(this)
-        }, this.logger);
+        });
     }
     add_to_syncgroup(connection_id, groups) {
         this.syncGroup.join_groups(this.syncGroup.get_by_id(connection_id), groups);
     }
     on_websocket_connection(socket) {
-        const connection = new Connection_1.Connection({ socket, options: {} }, this.logger);
+        const connection = new Connection_1.Connection({ socket, options: {} });
         this.logger.log('info', `New connection from ${connection.get_id()}`);
         // Add to sync group
         this.syncGroup.add_entity(connection.get_id(), connection);

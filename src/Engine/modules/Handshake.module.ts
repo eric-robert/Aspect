@@ -15,7 +15,7 @@ export class HandshakeModule extends EngineModule {
     run_handshake ( connection : Connection) {
         this.logger.log('info', 'Running handshake')
 
-        const handshake = new Handshake(this.logger)
+        const handshake = new Handshake()
         this.stages.forEach( stage => handshake.add_stage(stage))
 
         let open_listener = -1
@@ -43,7 +43,7 @@ export class HandshakeModule extends EngineModule {
                     resolve(true)
                 },
                 on_failure : () => {
-                    this.logger.log('error', 'Handshake failed')
+                    this.logger.log('important', 'Handshake failed')
                     reject()
                 },
                 on_open : do_open.bind(this),

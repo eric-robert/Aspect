@@ -56,7 +56,7 @@ export class ServerModule extends EngineModule {
             ticks_per_sync : this.ticks_per_sync,
             on_tick : this.on_tick.bind(this),
             on_sync : this.on_sync.bind(this)
-        }, this.logger)
+        })
 
     }
 
@@ -65,7 +65,7 @@ export class ServerModule extends EngineModule {
     }
 
     private on_websocket_connection ( socket : Socket ) {
-        const connection = new Connection({ socket, options : {} }, this.logger)
+        const connection = new Connection({ socket, options : {} })
         this.logger.log('info', `New connection from ${connection.get_id()}`)
 
         // Add to sync group

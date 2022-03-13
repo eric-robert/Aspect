@@ -1,4 +1,3 @@
-import { Logger } from "winston";
 import * as T from './Connection.types';
 export declare class Connection {
     private static _id;
@@ -8,7 +7,7 @@ export declare class Connection {
     private socket;
     private debug_latancy;
     private connectionListeners;
-    constructor(config: T.ConnectionConstructor, root_logger: Logger);
+    constructor(config: T.ConnectionConstructor);
     private get_wrapped;
     private get_unwrapped;
     send<Data>(event: string, data: Data): void;

@@ -1,5 +1,5 @@
+import { Logger } from "simpler-logs"
 import * as T from "./EventBus.types"
-import {Logger} from "winston"
 
 export class EventBus {
 
@@ -12,8 +12,8 @@ export class EventBus {
     // Logger inherited from a provided root logger
     private logger : Logger
 
-    constructor ( root_logger : Logger ) {
-        this.logger = root_logger.child({module : 'EventBus'})
+    constructor () {
+        this.logger = new Logger(`EventBus`, 'debug')
     }
 
     // Utils

@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EngineModule = void 0;
+const simpler_logs_1 = require("simpler-logs");
 class EngineModule {
-    constructor(engine, root_logger) {
+    constructor(engine) {
         this.engine = engine;
-        this.logger = root_logger.child({ module: this.constructor.name });
         this.event_bus = engine.withEventBus();
+        this.logger = new simpler_logs_1.Logger(`${this.constructor.name}`, 'debug');
     }
     // Module init function is called after all modules are created.
     // so that modules can access other modules.

@@ -1,18 +1,10 @@
 import { EventBus } from "./EventBus";
-import winston from "winston";
 import { EmittedEvent, RemoveSubscription } from "./EventBus.types";
 
-let debugLogger = winston.createLogger({
-    level: 'debug',
-    format: winston.format.json({ space: 4}),
-    transports: [
-        new winston.transports.File({ filename: './logs/test-eventbus.log', options : { flags : 'w' } }),
-    ]
-})
 
 test('Pub-Sub', () => {
 
-    const eventbus = new EventBus(debugLogger)
+    const eventbus = new EventBus()
 
     let value = 0
 
@@ -27,7 +19,7 @@ test('Pub-Sub', () => {
 
 test('Pub-Sub-Delete', () => {
 
-    const eventbus = new EventBus(debugLogger)
+    const eventbus = new EventBus()
 
     let value = 0
 

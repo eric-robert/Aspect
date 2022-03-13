@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
-import {Logger} from "winston"
 import * as T from './Connection.types'
 import { Metrics } from "./metrics/metrics";
+import {Logger} from 'simpler-logs'
 
 export class Connection {
 
@@ -15,10 +15,10 @@ export class Connection {
     private debug_latancy : number = 0
     private connectionListeners : Map<number, T.ListenerRecord<any>> = new Map()
    
-    constructor ( config : T.ConnectionConstructor, root_logger : Logger ) {
+    constructor ( config : T.ConnectionConstructor ) {
 
         this.id = ++Connection._id;
-        this.logger = root_logger.child({module : `Connection ${this.id}`})
+        this.logger = new Logger(`Connection ${this.id}`, 'debug')
 
         // Allowed to artificially set latancy
         this.debug_latancy = config.options.debug_latancy || 0

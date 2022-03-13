@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SyncLoop = void 0;
+const simpler_logs_1 = require("simpler-logs");
 class SyncLoop {
-    constructor(config, root_logger) {
-        this.logger = root_logger.child({ module: 'SyncLoop' });
+    constructor(config) {
+        this.logger = new simpler_logs_1.Logger(`Syncloop`, "debug");
         this.logger.log('info', `Starting sync loop`);
         // Save timings
         this.start_time_ms = config.start_time_ms || Date.now();

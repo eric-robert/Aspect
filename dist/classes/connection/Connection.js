@@ -2,12 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Connection = void 0;
 const metrics_1 = require("./metrics/metrics");
+const simpler_logs_1 = require("simpler-logs");
 class Connection {
-    constructor(config, root_logger) {
+    constructor(config) {
         this.debug_latancy = 0;
         this.connectionListeners = new Map();
         this.id = ++Connection._id;
-        this.logger = root_logger.child({ module: `Connection ${this.id}` });
+        this.logger = new simpler_logs_1.Logger(`Connection ${this.id}`, 'debug');
         // Allowed to artificially set latancy
         this.debug_latancy = config.options.debug_latancy || 0;
         // Save instanses

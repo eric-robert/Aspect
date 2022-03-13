@@ -1,9 +1,8 @@
 import * as T from './Engine.types'
-import { Logger } from 'winston'
 import { EngineModule } from './modules/Module'
-import build_logger from './Engine.logging'
 import { HandshakeModule } from './modules/Handshake.module'
 import { EventBus } from '../classes/eventbus/EventBus'
+import { Logger } from 'simpler-logs'
 
 export class AspectEngine {
 
@@ -27,17 +26,17 @@ export class AspectEngine {
         const total_modules = config.modules.length
         const module_names = config.modules.map( m => m.name )
 
-        this.logger = build_logger()
+        this.logger = new Logger(`AspectEngine`, 'debug')
         this.logger.log('info', 'Aspect Engine Starting')
         this.logger.log('debug', `Provided modules (${total_modules}): ${module_names.join(', ')}`)
 
         // Pull in the settings & intances
         this.settings = config.settings
-        this.eventBus = new EventBus( this.logger )
+        this.eventBus = new EventBus ()
 
         // Create modules & start them up
-        this.modules = config.modules.map( module => new module(this, this.logger))
-        this.handshakeModule = new config.handshakeModule(this, this.logger)
+        this.modules = config.modules.map( module => new module(this))
+        this.handshakeModule = new config.handshakeModule(this)
         
         this.modules.forEach( m => m.init() )
         this.handshakeModule.init()

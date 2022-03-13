@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Engine_1 = require("./engine/Engine");
 const Handshake_module_1 = require("./engine/modules/Handshake.module");
 const Server_1 = require("./modules/server/Server");
-function default_1() {
+function default_1(construct) {
     return new Engine_1.AspectEngine({
         modules: [
-            Server_1.ServerModule
+            Server_1.ServerModule,
+            ...(construct.modules || [])
         ],
-        handshakeModule: Handshake_module_1.HandshakeModule,
+        handshakeModule: construct.handshake || Handshake_module_1.HandshakeModule,
         settings: {}
     });
 }

@@ -1,5 +1,4 @@
 import { AspectEngine } from "./Engine";
-import { Logger } from "winston";
 import { EngineModule } from "./modules/Module";
 import { HandshakeModule } from "./modules/Handshake.module";
 
@@ -12,7 +11,7 @@ export interface AspectEngineConstuctor {
 }
 
 export interface ModuleBuilder<T> {
-    new(engine : AspectEngine, root_logger : Logger) : T
+    new(engine : AspectEngine) : T
 }
 
 export type ValidSettings = string | number

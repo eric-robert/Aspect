@@ -43,7 +43,7 @@ export class ClientModule extends EngineModule {
         // Connect to server
         this.logger.log('info', `Connecting to ${this.serverIP}`)
         this.socket = (io('ws://' + this.serverIP) as unknown) as Socket
-        this.connection = new Connection({ socket : this.socket, options : {} }, this.logger)
+        this.connection = new Connection({ socket : this.socket, options : {} })
         this.socket.on('connect', this.on_server_connection.bind(this))
     }
 
@@ -58,7 +58,7 @@ export class ClientModule extends EngineModule {
         this.syncloop = new SyncLoop({
             ...data,
             on_tick : this.on_tick.bind(this)
-        }, this.logger)
+        })
     }
 
     private on_tick () {

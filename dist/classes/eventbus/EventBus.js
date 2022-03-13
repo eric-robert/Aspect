@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventBus = void 0;
+const simpler_logs_1 = require("simpler-logs");
 class EventBus {
-    constructor(root_logger) {
+    constructor() {
         // Mapping of event labels to callbacks for that event
         this.subscribers = new Map();
         // Queue of events to process at next opportunity
         this.queue = [];
-        this.logger = root_logger.child({ module: 'EventBus' });
+        this.logger = new simpler_logs_1.Logger(`EventBus`, 'debug');
     }
     // Utils
     process_backlog() {

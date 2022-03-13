@@ -1,4 +1,3 @@
-import { Logger } from 'winston';
 import * as T from './SyncLoop.types';
 export declare class SyncLoop {
     private current_tick;
@@ -8,7 +7,7 @@ export declare class SyncLoop {
     private on_tick;
     private on_sync;
     private logger;
-    constructor(config: T.SyncloopConstructor, root_logger: Logger);
+    constructor(config: T.SyncloopConstructor);
     execute_tick(): void;
     get_state(): T.SyncLoopSyncData;
     get_ticksBehind(): number;

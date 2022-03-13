@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Handshake = void 0;
+const simpler_logs_1 = require("simpler-logs");
 class Handshake {
-    constructor(logger) {
+    constructor() {
         this.stages = [];
         this.current = -1;
         this.has_sent = false;
-        this.logger = logger.child({ module: 'Handshake' });
+        this.logger = new simpler_logs_1.Logger(`Handshake`, "debug");
     }
     init(config) {
         this.id = config.id;

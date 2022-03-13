@@ -1,4 +1,4 @@
-import { Logger } from 'winston'
+import { Logger } from 'simpler-logs'
 import * as T from './SyncLoop.types'
 
 export class SyncLoop {
@@ -13,9 +13,9 @@ export class SyncLoop {
 
     private logger : Logger
 
-    constructor ( config : T.SyncloopConstructor, root_logger : Logger ) {
+    constructor ( config : T.SyncloopConstructor) {
         
-        this.logger = root_logger.child({ module : 'SyncLoop' })
+        this.logger = new Logger(`Syncloop`, "debug")
         this.logger.log('info', `Starting sync loop`)
 
         // Save timings

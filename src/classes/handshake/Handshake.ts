@@ -1,4 +1,4 @@
-import { Logger } from 'winston'
+import { Logger } from 'simpler-logs'
 import * as T from './Handshake.types'
 
 export class Handshake {
@@ -18,8 +18,8 @@ export class Handshake {
     // Logger inherited from a provided root logger
     private logger : Logger
 
-    constructor ( logger : Logger ) {
-        this.logger = logger.child({ module : 'Handshake' })
+    constructor () {
+        this.logger = new Logger(`Handshake`, "debug")
     }
 
     public init (config : T.HandshakeConstructor) {

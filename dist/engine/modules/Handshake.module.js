@@ -13,7 +13,7 @@ class HandshakeModule extends Module_1.EngineModule {
     }
     run_handshake(connection) {
         this.logger.log('info', 'Running handshake');
-        const handshake = new Handshake_1.Handshake(this.logger);
+        const handshake = new Handshake_1.Handshake();
         this.stages.forEach(stage => handshake.add_stage(stage));
         let open_listener = -1;
         let open_event = '';
@@ -36,7 +36,7 @@ class HandshakeModule extends Module_1.EngineModule {
                     resolve(true);
                 },
                 on_failure: () => {
-                    this.logger.log('error', 'Handshake failed');
+                    this.logger.log('important', 'Handshake failed');
                     reject();
                 },
                 on_open: do_open.bind(this),
