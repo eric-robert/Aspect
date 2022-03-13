@@ -11,7 +11,6 @@ export class HandshakeModule extends EngineModule {
         this.stages.push(stage)
     }
 
-
     run_handshake ( connection : Connection) {
         this.logger.log('info', 'Running handshake')
 

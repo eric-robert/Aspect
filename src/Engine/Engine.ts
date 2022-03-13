@@ -57,6 +57,10 @@ export class AspectEngine {
     withEventBus() : EventBus {
         return this.eventBus
     }
+
+    withModule<T extends EngineModule>(module : T.ModuleBuilder<T> ):T{
+        return this.modules.filter(m => m instanceof module)[0] as T
+    }
     
 
 }
