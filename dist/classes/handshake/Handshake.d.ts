@@ -12,7 +12,7 @@ export declare class Handshake {
     private logger;
     constructor();
     init(config: T.HandshakeConstructor): void;
-    add_stage<Send, Recieved>(stage: T.HandshakeStage<Send, Recieved>): void;
+    add_stage<Send, Recieved>(stage: T.HandshakeStage): void;
     start(): void;
     private get_name;
     private progress_stage;

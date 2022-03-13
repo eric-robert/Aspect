@@ -33,5 +33,8 @@ class AspectEngine {
     withEventBus() {
         return this.eventBus;
     }
+    withModule(module) {
+        return this.modules.filter(m => m instanceof module)[0];
+    }
 }
 exports.AspectEngine = AspectEngine;

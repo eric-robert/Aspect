@@ -49,7 +49,7 @@ class HandshakeBridge {
         })
     }
 
-    public add_stage<Send, Recieve> (side : 'initiator' | 'responder', stage : HandshakeStage<Send, Recieve>) {
+    public add_stage<Send, Recieve> (side : 'initiator' | 'responder', stage : HandshakeStage) {
         if (side == 'initiator') {
             this.handshake_initiator.add_stage(stage)
         }

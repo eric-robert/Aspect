@@ -3,6 +3,6 @@ import { HandshakeStage } from "../../classes/handshake/Handshake.types";
 import { EngineModule } from "./Module";
 export declare class HandshakeModule extends EngineModule {
     private stages;
-    add_stage<Send, Recieve>(stage: HandshakeStage<Send, Recieve>): void;
+    add_stage(stage: HandshakeStage): void;
     run_handshake(connection: Connection): Promise<unknown>;
 }

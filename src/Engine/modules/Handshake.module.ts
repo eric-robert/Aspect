@@ -5,9 +5,9 @@ import { EngineModule } from "./Module";
 
 export class HandshakeModule extends EngineModule {
 
-    private stages : HandshakeStage<any, any>[] = []
+    private stages : HandshakeStage[] = []
     
-    add_stage<Send, Recieve> (stage : HandshakeStage<Send, Recieve>) {
+    add_stage (stage : HandshakeStage) {
         this.stages.push(stage)
     }
 

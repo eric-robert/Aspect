@@ -1,9 +1,9 @@
 export declare type FailCallback = (error: string) => void;
 export declare type SuccessCallback = (data?: any) => void;
-export interface HandshakeStage<Sent, Recieved> {
+export interface HandshakeStage {
     name: string;
-    initiate?(id: number): Sent;
-    recieve(id: number, data: Recieved, success: SuccessCallback, fail: FailCallback): void;
+    initiate?(id: number): any;
+    recieve(id: number, data: any, success: SuccessCallback, fail: FailCallback): void;
 }
 export declare type Open = (event: string, listen: (data: any) => void) => void;
 export declare type Close = () => void;

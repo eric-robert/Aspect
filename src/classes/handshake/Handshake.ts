@@ -3,7 +3,7 @@ import * as T from './Handshake.types'
 
 export class Handshake {
 
-    private stages : T.HandshakeStage<any, any>[] = []
+    private stages : T.HandshakeStage[] = []
     private current : number = -1
     private has_sent : boolean = false
     private id : number 
@@ -32,7 +32,7 @@ export class Handshake {
     }
 
     // Public Methods
-    public add_stage<Send, Recieved> ( stage : T.HandshakeStage<Send, Recieved> ) {
+    public add_stage<Send, Recieved> ( stage : T.HandshakeStage ) {
         this.stages.push(stage)
     }
 
