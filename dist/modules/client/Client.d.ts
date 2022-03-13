@@ -1,5 +1,5 @@
 import { Connection } from "../../classes/connection/Connection";
-import { EngineModule } from "../../Engine/modules/Module";
+import { EngineModule } from "../../engine/modules/Module";
 export declare class ClientModule extends EngineModule {
     private serverIP;
     private socket;

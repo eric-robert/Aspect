@@ -76,7 +76,9 @@ export class Connection {
     }
     
     public remove_listener (id : number) {
-        const {event,callback} = this.connectionListeners.get(id)
+        const listener = this.connectionListeners.get(id)
+        if (!listener) return
+        const {event,callback} = listener 
         this.logger.log('debug', `Removing listener for event: '${event}'`)
         this.connectionListeners.delete(id)
         this.socket.off(event, callback)

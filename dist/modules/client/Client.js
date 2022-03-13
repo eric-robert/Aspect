@@ -27,7 +27,7 @@ exports.ClientModule = void 0;
 const socket_io_client_1 = require("socket.io-client");
 const Connection_1 = require("../../classes/connection/Connection");
 const SyncLoop_1 = require("../../classes/syncloop/SyncLoop");
-const Module_1 = require("../../Engine/modules/Module");
+const Module_1 = require("../../engine/modules/Module");
 const events_1 = require("../../events");
 const T = __importStar(require("./Client.types"));
 class ClientModule extends Module_1.EngineModule {

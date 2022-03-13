@@ -4,15 +4,15 @@ import { Connection } from "../../classes/connection/Connection"
 import { SyncLoop } from "../../classes/syncloop/SyncLoop"
 import { SyncLoopSyncData } from "../../classes/Syncloop/SyncLoop.types"
 import { HandshakeModule } from "../../engine/modules/Handshake.module"
-import { EngineModule } from "../../Engine/modules/Module"
+import { EngineModule } from "../../engine/modules/Module"
 import { Events } from "../../events"
 import * as T from './Client.types'
 
 export class ClientModule extends EngineModule {
 
     // Pull from settings
-    private serverIP
-
+    private serverIP : string
+ 
     // Instances
     private socket : Socket
     private connection : Connection
