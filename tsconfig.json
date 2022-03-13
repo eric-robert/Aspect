@@ -2,11 +2,11 @@
     "compilerOptions": {
         "target": "ES2019",
         "module": "commonjs",
-        "outDir": "./dist",
+        "outDir": "dist
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators" : true
     },
-    "include": ["./src/**/*.ts", "_dead/client.ts"]
+    "include": ["src/**/*.ts "_dead/client.ts"]
 }
