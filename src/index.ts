@@ -1,5 +1,11 @@
-import * as S from './server'
-import * as C from './client'
-
-export const AspectServer = S.default
-export const AspectClient = C.default
+export {ClientController} from './client/ClientController'
+export {ServerController} from './server/ServerController'
+export {Connection} from './connection/Connection'
+export {AspectEngine} from './engine/Engine'
+export {EngineModule} from './engine/modules/Module'
+export {SyncableModule} from './engine/modules/syncable.module'
+export {EventBus} from './eventbus/EventBus'
+export {SyncableGroup} from './syncableGroup/SyncableGroup'
+export {SyncableEntity} from './syncableGroup/SyncableEntity'
+export {SyncLoop} from './syncloop/SyncLoop'
+export * as Events from './events'

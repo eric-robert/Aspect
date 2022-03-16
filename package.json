@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "cubic-array": "^1.0.2",
-    "simpler-logs": "^1.0.7",
+    "simpler-logs": "1.0.7",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1"
   },

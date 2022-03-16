@@ -1,5 +1,5 @@
-import { SyncableGroup } from "../../classes/syncableGroup/SyncableGroup"
-import {SyncableEntity} from '../../classes/syncableGroup/SyncableEntity'
+import { SyncableGroup } from "../../syncableGroup/SyncableGroup"
+import {SyncableEntity} from '../../syncableGroup/SyncableEntity'
 import { EngineModule } from "./Module"
 
 export class SyncableModule<U extends {id:number}, T extends SyncableEntity<U>> extends EngineModule {
@@ -23,10 +23,6 @@ export class SyncableModule<U extends {id:number}, T extends SyncableEntity<U>> 
     }
 
     // Get Sync Group
-
-    get_nameForSync () {
-        throw new Error("Not implemented")
-    }
 
     get_syncForGroup ( name : string ) {
         return this.get_group(name).map( entity => entity.get_sync_data() )

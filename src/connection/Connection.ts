@@ -68,11 +68,14 @@ export class Connection {
         return id
     }
 
-    public listen_singular (event : string, callback : (data : any) => void) {
-        const id = this.listen(event, data => {
-            callback(data)
-            this.remove_listener(id)
+    public async wait_for (event : string) {
+        return new Promise((resolve, reject) => {
+            const id = this.listen(event, data => {
+                this.remove_listener(id)
+                resolve(data)
+            })
         })
+        
     }
     
     public remove_listener (id : number) {

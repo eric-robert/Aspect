@@ -1,7 +1,6 @@
 import * as T from './Engine.types'
 import { EngineModule } from './modules/Module'
-import { HandshakeModule } from './modules/Handshake.module'
-import { EventBus } from '../classes/eventbus/EventBus'
+import { EventBus } from '../eventbus/EventBus'
 import { Logger } from 'simpler-logs'
 
 export class AspectEngine {
@@ -12,8 +11,7 @@ export class AspectEngine {
 
     // The modules which are running in this engine
     private modules : EngineModule[]
-    private handshakeModule : HandshakeModule
-
+    
     // For events to be sent and recieved by modules
     private eventBus : EventBus
 
@@ -36,22 +34,13 @@ export class AspectEngine {
 
         // Create modules & start them up
         this.modules = config.modules.map( module => new module(this))
-        this.handshakeModule = new config.handshakeModule(this)
-        
-        this.modules.forEach( m => m.init() )
-        this.handshakeModule.init()
-        
-        this.modules.forEach( m => m.start() )
-        this.handshakeModule.start()
+        this.modules.forEach( m => m.triggerInit())    
+        this.modules.forEach( m => m.triggerStart())
     
     }
 
     withSetting(name : string, _default : T.ValidSettings) : T.ValidSettings {
         return (this.settings[name] || _default) as T.ValidSettings
-    }
-
-    withHandshakeModule() : HandshakeModule {
-        return this.handshakeModule
     }
 
     withEventBus() : EventBus {

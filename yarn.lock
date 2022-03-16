@@ -2778,10 +2778,10 @@ signal-exit@^3.0.2, signal-exit@^3.0.3:
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz"
   integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
 
-simpler-logs@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/simpler-logs/-/simpler-logs-1.0.2.tgz#afb52c4eb9635a7d39872adda5c046a9235bc458"
-  integrity sha512-a0ERw+TjWK2GpFAQAaiEplVaQLoKthQK/sNm63C0ih3DUPWDqCUooKH0VmwcFRaxmDrd05jVOxygTNLVkElR+g==
+simpler-logs@1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/simpler-logs/-/simpler-logs-1.0.7.tgz#c31f3c44e7258bf8921f285df9579fd5a5c5c739"
+  integrity sha512-7pl1s4/aL438HNOtvDAOQ0n9or5EeAf11X3Tko/ORTKAP8ZR4l55o5XUhoDwEYgDd0zt1ncRxPZp9qV3SjsAJQ==
 
 sisteransi@^1.0.5:
   version "1.0.5"
