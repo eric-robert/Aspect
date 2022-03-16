@@ -34,8 +34,8 @@ export class AspectEngine {
 
         // Create modules & start them up
         this.modules = config.modules.map( module => new module(this))
-        this.modules.forEach( m => m.triggerInit())    
-        this.modules.forEach( m => m.triggerStart())
+        this.modules.forEach( m => m.init())    
+        this.modules.forEach( m => m.start())
     
     }
 
