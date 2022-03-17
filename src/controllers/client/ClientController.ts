@@ -1,13 +1,14 @@
 import { Socket } from "socket.io"
 import { io } from "socket.io-client"
-import { Connection } from "../connection/Connection"
-import { SyncLoop } from "../syncloop/SyncLoop"
-import { SyncLoopSyncData } from "../Syncloop/SyncLoop.types"
-import { AspectEngine } from "../engine/Engine"
-import { Events, Requests } from "../events"
+import { Connection } from "../../classes/connection/Connection"
+import { SyncLoop } from "../../classes/syncloop/SyncLoop"
+import { SyncLoopSyncData } from "../../classes/syncloop/SyncLoop.types"
+import { AspectEngine } from "../../engine/Engine"
+import { Events, Requests } from "../../events"
 import * as T from './Client.types'
 import { Logger } from "simpler-logs"
-import { EventBus } from "../eventbus/EventBus"
+import { EventBus } from "../../classes/eventbus/EventBus"
+import { SyncController } from "../sync/SyncController"
 
 export class ClientController  {
 
@@ -20,6 +21,8 @@ export class ClientController  {
     private syncloop : SyncLoop
     private logger : Logger
     private eventBus : EventBus
+    private syncControllers : SyncController<any,any>[]
+
 
     constructor (private engine : AspectEngine, private onConnect : Function) {
         
@@ -28,6 +31,7 @@ export class ClientController  {
 
         // Grab instances
         this.eventBus = this.engine.withEventBus()
+        this.syncControllers = this.engine.withSyncControllers()
 
         // Connect to server
         this.logger = new Logger('Client', 'info')
@@ -42,10 +46,11 @@ export class ClientController  {
 
     private async on_server_connection () {
 
-        let syncLoopData = undefined as SyncLoopSyncData
+        let syncLoopData = undefined as (SyncLoopSyncData | undefined)
 
         // Start listeneing for sync loop data
         this.connection.listen(Requests.RECIEVE_SYNC_LOOP, (data : SyncLoopSyncData) => syncLoopData = data)
+        this.connection.listen(Requests.GAME_SYNC_EVENT, this.on_syncEvent.bind(this))
 
         // Let client do whatever they want
         await this.on_connect(this.connection)
@@ -61,12 +66,28 @@ export class ClientController  {
             ...syncLoopData,
             on_tick : this.on_tick.bind(this)
         })
-
+        
     }
 
     private on_tick () {
         this.eventBus.emit(Events.GAME_TICK)
         this.eventBus.do_processAll()
+    }
+
+    private on_syncEvent (recieved : { [key : string] : any[] }) {
+        
+        // console.log("???")
+        this.logger.log(`info`, `Recieved sync event of ${JSON.stringify(recieved)}`)
+
+        for ( let syncKey in recieved ) {
+            const data = recieved[syncKey]
+            const syncController = this.syncControllers.find(s => s.name === syncKey)
+            if (syncController) {
+                syncController.recieve_sync(data)
+            }
+        }
+
+        
     }
 
     // Public

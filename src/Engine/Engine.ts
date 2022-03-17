@@ -1,7 +1,8 @@
 import * as T from './Engine.types'
 import { EngineModule } from './modules/Module'
-import { EventBus } from '../eventbus/EventBus'
+import { EventBus } from '../classes/eventbus/EventBus'
 import { Logger } from 'simpler-logs'
+import { SyncController } from '../controllers/sync/SyncController'
 
 export class AspectEngine {
 
@@ -18,6 +19,9 @@ export class AspectEngine {
     // A place for catch-all variables used in modules
     // Since modules lack constructors, they can't have their own variables
     private settings : T.EngineSettings = {}
+
+    // Adds a sync controller to the engine
+    private _syncControllers : SyncController<any, any>[] = []
 
     constructor ( config : T.AspectEngineConstuctor ){
 
@@ -50,6 +54,19 @@ export class AspectEngine {
     withModule<T extends EngineModule>(module : T.ModuleBuilder<T> ):T{
         return this.modules.filter(m => m instanceof module)[0] as T
     }
+    
+    withSyncControllers() : SyncController<any, any>[] {
+        return this._syncControllers
+    }
+
+
+    // Adds a sync controller to the engine
+    register_sync_controller ( syncController : SyncController<any, any>) {
+        this._syncControllers.push(syncController)
+    }
+
+
+
     
 
 }

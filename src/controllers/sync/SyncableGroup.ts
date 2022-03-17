@@ -49,4 +49,8 @@ export class SyncableGroup<T> {
         return Array.from(this.subscribed_to_group.keys())
     }
 
+    get_all () {
+        return Array.from(this.all_entities.values())
+    }
+
 }

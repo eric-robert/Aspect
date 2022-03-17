@@ -1,12 +1,18 @@
 // An example of a Aspect Engine Client running
 
 import {AspectEngine, EngineModule, ClientController, Connection} from '../src/index'
+import { SimplePhysics } from './physics.module'
 
 // Construction of each module
 
 class ClientModule extends EngineModule{
     
     private _clientController: ClientController
+    private _physics : SimplePhysics
+
+    init() {
+        this._physics = this.engine.withModule(SimplePhysics)
+    }
 
     start () {
         this._clientController = new ClientController(this.engine, this.onConnected.bind(this))
@@ -22,7 +28,8 @@ class ClientModule extends EngineModule{
 
 new AspectEngine({
     modules : [
-        ClientModule
+        ClientModule,
+        SimplePhysics
     ], 
     settings : {}
 })

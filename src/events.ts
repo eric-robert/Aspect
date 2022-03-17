@@ -4,5 +4,6 @@ export const Events = {
 
 export const Requests = {
     REQUEST_SYNC_LOOP : 'request-sync-loop',
-    RECIEVE_SYNC_LOOP : 'recieve-sync-loop'
+    RECIEVE_SYNC_LOOP : 'recieve-sync-loop',
+    GAME_SYNC_EVENT : 'game-sync-event'
 }

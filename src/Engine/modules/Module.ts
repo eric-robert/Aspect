@@ -1,5 +1,6 @@
 import { Logger } from "simpler-logs";
-import { EventBus } from "../../eventbus/EventBus";
+import { EventBus } from "../../classes/eventbus/EventBus";
+import { SyncController } from "../../controllers/sync/SyncController";
 import { AspectEngine } from "../Engine";
 
 export class EngineModule {
@@ -22,4 +23,6 @@ export class EngineModule {
     // Module start function is called after all modules are created and init.
     // to allow modules to start their own systems.
     start ()  {}
+
+
 }

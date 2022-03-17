@@ -1,12 +1,13 @@
 import { Logger } from "simpler-logs"
 import { Server, Socket } from "socket.io"
-import { Connection } from "../connection/Connection"
-import { SyncableGroup } from "../syncableGroup/SyncableGroup"
-import { SyncLoop } from "../syncloop/SyncLoop"
-import { AspectEngine } from "../engine/Engine"
-import { Events, Requests } from "../events"
-import { EventBus } from "../eventbus/EventBus"
+import { Connection } from "../../classes/connection/Connection"
+import { SyncableGroup } from "../sync/SyncableGroup"
+import { SyncLoop } from "../../classes/syncloop/SyncLoop"
+import { AspectEngine } from "../../engine/Engine"
+import { Events, Requests } from "../../events"
+import { EventBus } from "../../classes/eventbus/EventBus"
 import * as T from './Server.types'
+import { SyncController } from "../sync/SyncController"
 
 export class ServerController {
 
@@ -22,16 +23,19 @@ export class ServerController {
     private logger : Logger
     private eventBus : EventBus
 
+    private syncControllers : SyncController<any,any>[]
+
     constructor (private engine : AspectEngine, private onConnect : Function) {
 
         // Create instances
         this.syncGroup = new SyncableGroup<Connection>()
         this.eventBus = this.engine.withEventBus()
+        this.syncControllers = this.engine.withSyncControllers()
 
         // Grab settings
         this.port = this.engine.withSetting( T.ServerSettings.PORT, 3000) as number
         this.ms_per_tick = this.engine.withSetting( T.ServerSettings.MS_PER_TICK, 1000) as number
-        this.ticks_per_sync = this.engine.withSetting( T.ServerSettings.TICKS_PER_SYNC, 10) as number        
+        this.ticks_per_sync = this.engine.withSetting( T.ServerSettings.TICKS_PER_SYNC, 1) as number        
 
         // Start server
         this.logger = new Logger('Server', 'info')
@@ -57,6 +61,7 @@ export class ServerController {
         // Add to sync group
         this.syncGroup.add_entity( connection.get_id(), connection )
 
+        // Pepair to receieve data later
         let wantsSync = false
         connection.listen(Requests.REQUEST_SYNC_LOOP, () => wantsSync = true)
 
@@ -69,6 +74,7 @@ export class ServerController {
         }
 
         // Send sync loop data
+        this.syncGroup.join_groups( connection, ['0','2'])
         connection.send(Requests.RECIEVE_SYNC_LOOP, this.syncloop.get_state())
     }
 
@@ -79,7 +85,28 @@ export class ServerController {
 
     // Syncing
 
-    private on_sync () {}
+    private on_sync () {
+
+        const data = this.syncControllers.map(s => ({name : s.name, data : s.get_full_sync()}))
+        const connections = this.syncGroup.get_all()
+
+        connections.forEach( connection => {
+
+            const groups = this.syncGroup.get_groups(connection)
+            const sendData : any = {}
+
+            groups.forEach( group => {
+                data.filter( d => d.data[group])
+                    .forEach( d => sendData[d.name] = d.data[group])
+
+            })
+
+            this.logger.log('info', `Sending sync to ${connection.get_id()} with ${JSON.stringify(sendData)}`)
+            connection.send(Requests.GAME_SYNC_EVENT, sendData)
+        
+        })
+
+    }
 
     // Adding connections to different groups
 
