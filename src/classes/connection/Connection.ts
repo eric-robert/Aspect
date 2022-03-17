@@ -6,7 +6,7 @@ import {Logger} from 'simpler-logs'
 export class Connection {
 
     private static _id = 0
-    private id : number
+    public id : number
 
     private logger : Logger
     private metrics : Metrics
@@ -90,7 +90,6 @@ export class Connection {
     // Getters
 
     public get_latancy () : number { return this.metrics.get_latancy() }
-    public get_id () : number { return this.id }
 
 
 }

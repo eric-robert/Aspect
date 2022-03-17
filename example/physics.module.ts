@@ -10,27 +10,23 @@ interface SyncData {
 
 export class SimpleObject implements SyncableEntity<SyncData> {
     
-    private _id = 0
+    public id = 0
     private _position : number = 0
     private _velocity : number = 0
     private _acceleration : number = 0
 
     constructor ( sync : SyncData ) {
-        this._id = sync.id
+        this.id = sync.id
         this.receive_sync_data(sync)
     }
 
-    get_id () : number {
-        return this._id
-    }
-
     get_group () : string {
-        return Math.floor(this._id / 10) + ""
+        return Math.floor(this._position / 10) + ""
     }
 
     public get_sync_data(): SyncData {
         return {
-            id: this._id,
+            id: this.id,
             position: this._position,
             velocity: this._velocity,
             acceleration: this._acceleration
@@ -43,9 +39,10 @@ export class SimpleObject implements SyncableEntity<SyncData> {
         this._acceleration = data.acceleration
     }
 
-    public step_interpolation() {
+    public step_interpolation() : boolean {
         this._position += this._velocity
         this._velocity += this._acceleration
+        return true
     }
 
 }
@@ -63,11 +60,11 @@ export class SimplePhysics extends EngineModule {
     }
 
     private on_game_tick () {
-        // TIck everything forward
+        // Tick everything forward
         this._syncController.tick_forwards()
         
         // Debug logging
-        const debug = this._syncController.get_all_items()[0]
+        const debug = this._syncController.multiMap.get_allValues()[0]
         if (debug) {
             this.logger.log('info', `PHYSICS: @ ${debug.get_sync_data().position}`)
         }

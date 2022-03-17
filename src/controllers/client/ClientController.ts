@@ -76,17 +76,12 @@ export class ClientController  {
 
     private on_syncEvent (recieved : { [key : string] : any[] }) {
         
-        // console.log("???")
-        this.logger.log(`info`, `Recieved sync event of ${JSON.stringify(recieved)}`)
-
-        for ( let syncKey in recieved ) {
-            const data = recieved[syncKey]
-            const syncController = this.syncControllers.find(s => s.name === syncKey)
-            if (syncController) {
-                syncController.recieve_sync(data)
-            }
+        for ( let key in this.syncControllers ) {
+            const controller = this.syncControllers[key]
+            const data = recieved[controller.name]
+            if (!data) controller.recieve_sync([])
+            else controller.recieve_sync(data)
         }
-
         
     }
 

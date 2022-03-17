@@ -1,7 +1,7 @@
 import { Logger } from "simpler-logs"
 import { Server, Socket } from "socket.io"
 import { Connection } from "../../classes/connection/Connection"
-import { SyncableGroup } from "../sync/SyncableGroup"
+import { MultiMap } from "../sync/MultiMap"
 import { SyncLoop } from "../../classes/syncloop/SyncLoop"
 import { AspectEngine } from "../../engine/Engine"
 import { Events, Requests } from "../../events"
@@ -16,19 +16,28 @@ export class ServerController {
     private ms_per_tick : number
     private ticks_per_sync : number
 
+    // The actual socket.io server instance
     private server : Server
-    private syncloop : SyncLoop
-    private syncGroup : SyncableGroup<Connection>
 
+    // A class to manage the syncloop
+    private syncloop : SyncLoop
+
+    // A fancy lookup table that maps connections to world chunks
+    private multiMap : MultiMap<string, Connection>
+
+    // For logging
     private logger : Logger
+
+    // Reference to global event bus
     private eventBus : EventBus
 
+    // Reference to sync controllers 
     private syncControllers : SyncController<any,any>[]
 
     constructor (private engine : AspectEngine, private onConnect : Function) {
 
         // Create instances
-        this.syncGroup = new SyncableGroup<Connection>()
+        this.multiMap = new MultiMap()
         this.eventBus = this.engine.withEventBus()
         this.syncControllers = this.engine.withSyncControllers()
 
@@ -56,10 +65,7 @@ export class ServerController {
 
     private async on_websocket_connection ( socket : Socket ) {
         const connection = new Connection({ socket, options : {} })
-        this.logger.log('info', `New connection from ${connection.get_id()}`)
-
-        // Add to sync group
-        this.syncGroup.add_entity( connection.get_id(), connection )
+        this.logger.log('info', `New connection from ${connection.id}`)
 
         // Pepair to receieve data later
         let wantsSync = false
@@ -74,7 +80,7 @@ export class ServerController {
         }
 
         // Send sync loop data
-        this.syncGroup.join_groups( connection, ['0','2'])
+        this.multiMap.add_many(['0','2'], connection)
         connection.send(Requests.RECIEVE_SYNC_LOOP, this.syncloop.get_state())
     }
 
@@ -88,31 +94,22 @@ export class ServerController {
     private on_sync () {
 
         const data = this.syncControllers.map(s => ({name : s.name, data : s.get_full_sync()}))
-        const connections = this.syncGroup.get_all()
+        const connections = this.multiMap.get_allValues()
 
         connections.forEach( connection => {
 
-            const groups = this.syncGroup.get_groups(connection)
+            const keys = this.multiMap.get_keysByValue(connection)
             const sendData : any = {}
 
-            groups.forEach( group => {
-                data.filter( d => d.data[group])
-                    .forEach( d => sendData[d.name] = d.data[group])
-
+            keys.forEach( key => {
+                data.filter( d => d.data[key])
+                    .forEach( d => sendData[d.name] = d.data[key])
             })
 
-            this.logger.log('info', `Sending sync to ${connection.get_id()} with ${JSON.stringify(sendData)}`)
             connection.send(Requests.GAME_SYNC_EVENT, sendData)
         
         })
 
     }
-
-    // Adding connections to different groups
-
-    public add_to_syncgroup ( connection_id : number, groups : string[] ) {
-        this.syncGroup.join_groups( this.syncGroup.get_by_id(connection_id), groups )
-    }
-
 
 }
