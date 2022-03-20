@@ -1117,10 +1117,10 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-cubic-array@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/cubic-array/-/cubic-array-1.0.2.tgz"
-  integrity sha512-Na0y8NW2dMAMDYfTZqKwz+XQsqbR+M7920m4PD4P2eQKR/T4Je1kEUa908a+ylVP8BqAakr9Su2lDB8P/zS80Q==
+cubic-array@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/cubic-array/-/cubic-array-1.1.1.tgz#1b66f6e35ac2459c3e0eea4e819d90d4a5b8d1f1"
+  integrity sha512-5SuBkYW8jOCuARdw873D91nWfrlDenRi2u0ce3AvcaiemD3b+M9Vgk+kle32jTgvZyDHthM2Qw0YEU/OwWeLuA==
 
 data-urls@^2.0.0:
   version "2.0.0"

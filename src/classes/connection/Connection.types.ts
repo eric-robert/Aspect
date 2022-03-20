@@ -1,5 +1,9 @@
 import { Socket } from "socket.io";
 
+export interface ConnectionNetworkedData {
+    id: number;
+}
+
 export interface ConnectionConstructor {
     socket : Socket,
     options : {

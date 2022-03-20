@@ -36,7 +36,7 @@ class ServerModule extends EngineModule{
     }
 
     private onDisconnected ( connection : Connection ) {
-        this.logger.log('info', "Left the server")
+        this.logger.log('info', `Client ${connection.id} Left the server`)
     }
 
 }

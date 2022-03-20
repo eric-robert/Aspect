@@ -74,17 +74,23 @@ export class ServerController {
 
         // Pepair to receieve data later
         let wantsSync = false
+        let wantsConnectionData = false
         connection.listen(Requests.REQUEST_SYNC_LOOP, () => wantsSync = true)
+        connection.listen(Requests.REQUEST_CONNECTION_INFO, () => wantsConnectionData = true)
+
+        // Wait for connection data request
+        while (!wantsConnectionData) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        connection.send(Requests.RECIEVE_CONNECTION_INFO, { id : connection.id })
 
         // Run whatever
         await this.onConnect( connection )
 
-        // Wait untill they want the data
+        // Wait untill they want the sync data
         while (!wantsSync) {
             await new Promise(resolve => setTimeout(resolve, 100))
         }
-
-        // Send sync loop data
         connection.send(Requests.RECIEVE_SYNC_LOOP, this.syncloop.get_state())
     }
 

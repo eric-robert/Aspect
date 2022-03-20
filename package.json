@@ -19,7 +19,7 @@
     "typescript": "^4.6.2"
   },
   "dependencies": {
-    "cubic-array": "^1.0.2",
+    "cubic-array": "^1.1.1",
     "simpler-logs": "1.0.7",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1"

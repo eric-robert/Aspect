@@ -23,7 +23,7 @@ class ClientModule extends EngineModule{
     }
 
     private onConnected (connection : Connection) {
-        this.logger.log('info', "Connected to server")
+        this.logger.log('info', `Connected to server with ID ${connection.id}`)
     }
 
     private onDisconnected () {

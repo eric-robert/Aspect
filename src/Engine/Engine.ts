@@ -65,8 +65,4 @@ export class AspectEngine {
         this._syncControllers.push(syncController)
     }
 
-
-
-    
-
 }

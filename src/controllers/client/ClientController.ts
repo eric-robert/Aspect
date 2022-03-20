@@ -9,6 +9,7 @@ import * as T from './Client.types'
 import { Logger } from "simpler-logs"
 import { EventBus } from "../../classes/eventbus/EventBus"
 import { SyncController } from "../sync/SyncController"
+import { ConnectionNetworkedData } from "../../classes/connection/Connection.types"
 
 export class ClientController  {
 
@@ -48,10 +49,19 @@ export class ClientController  {
     private async on_server_connection () {
 
         let syncLoopData = undefined as (SyncLoopSyncData | undefined)
+        let connectionData = undefined as (ConnectionNetworkedData | undefined)
 
         // Start listeneing for sync loop data
+        this.connection.listen(Requests.RECIEVE_CONNECTION_INFO, (data : ConnectionNetworkedData) => connectionData = data)
         this.connection.listen(Requests.RECIEVE_SYNC_LOOP, (data : SyncLoopSyncData) => syncLoopData = data)
         this.connection.listen(Requests.GAME_SYNC_EVENT, this.on_syncEvent.bind(this))
+
+        // Make sure client and server are on the same ID
+        this.connection.send(Requests.REQUEST_CONNECTION_INFO, {})
+        while (!connectionData) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        this.connection.id = connectionData.id
 
         // Let client do whatever they want
         await this.onConnect(this.connection)
