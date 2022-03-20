@@ -24,7 +24,7 @@ export class ClientController  {
     private syncControllers : SyncController<any,any>[]
 
 
-    constructor (private engine : AspectEngine, private onConnect : Function) {
+    constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function) {
         
         // Grab settings
         this.serverIP = this.engine.withSetting( T.ClientSettings.SERVER_IP, 'localhost:3000') as string
@@ -39,6 +39,7 @@ export class ClientController  {
         this.socket = (io('ws://' + this.serverIP) as unknown) as Socket
         this.connection = new Connection({ socket : this.socket, options : {} })
         this.socket.on('connect', this.on_server_connection.bind(this))
+        this.socket.on('disconnect', this.on_server_disconnect.bind(this))
 
     }
     
@@ -53,7 +54,7 @@ export class ClientController  {
         this.connection.listen(Requests.GAME_SYNC_EVENT, this.on_syncEvent.bind(this))
 
         // Let client do whatever they want
-        await this.on_connect(this.connection)
+        await this.onConnect(this.connection)
 
         // Wait untill we get the data
         this.connection.send(Requests.REQUEST_SYNC_LOOP, {})
@@ -67,6 +68,10 @@ export class ClientController  {
             on_tick : this.on_tick.bind(this)
         })
         
+    }
+
+    private async on_server_disconnect () {
+        await this.onDisconnect()
     }
 
     private on_tick () {
@@ -84,8 +89,5 @@ export class ClientController  {
         }
         
     }
-
-    // Public
     
-    public async on_connect ( connection : Connection ) {}
 }

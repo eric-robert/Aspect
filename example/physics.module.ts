@@ -62,15 +62,6 @@ export class SimplePhysics extends EngineModule {
     private on_game_tick () {
         // Tick everything forward
         this._syncController.tick_forwards()
-        
-        // Debug logging
-        const debug = this._syncController.multiMap.get_allValues()[0]
-        if (debug) {
-            this.logger.log('info', `PHYSICS: @ ${debug.get_sync_data().position}`)
-        }
-        else {
-            this.logger.log('info', `PHYSICS: no items`)
-        }
     }
 
     public get_sync () {

@@ -15,7 +15,7 @@ export class SyncLoop {
 
     constructor ( config : T.SyncloopConstructor) {
         
-        this.logger = new Logger(`Syncloop`, "debug")
+        this.logger = new Logger(`Syncloop`, "info")
         this.logger.log('info', `Starting sync loop`)
 
         // Save timings

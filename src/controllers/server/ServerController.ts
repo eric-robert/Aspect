@@ -34,7 +34,7 @@ export class ServerController {
     // Reference to sync controllers 
     private syncControllers : SyncController<any,any>[]
 
-    constructor (private engine : AspectEngine, private onConnect : Function) {
+    constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function) {
 
         // Create instances
         this.multiMap = new MultiMap()
@@ -51,6 +51,7 @@ export class ServerController {
         this.logger.log('info', `Starting server on port ${this.port}`)
         this.server = new Server( this.port, { serveClient: false, cors: {origin: '*'}})
         this.server.on('connection', this.on_websocket_connection.bind(this))
+        this.server.on('disconnect', this.on_websocket_disconnect.bind(this))
 
         // Start sync loop
         this.syncloop = new SyncLoop({
@@ -64,8 +65,12 @@ export class ServerController {
     // Run the sync loop
 
     private async on_websocket_connection ( socket : Socket ) {
+
         const connection = new Connection({ socket, options : {} })
-        this.logger.log('info', `New connection from ${connection.id}`)
+        this.logger.log('debug', `New connection from ${connection.id}`)
+
+        // Add disconnect listener
+        socket.on('disconnect', () => this.on_websocket_disconnect(connection))
 
         // Pepair to receieve data later
         let wantsSync = false
@@ -80,8 +85,11 @@ export class ServerController {
         }
 
         // Send sync loop data
-        this.multiMap.add_many(['0','2'], connection)
         connection.send(Requests.RECIEVE_SYNC_LOOP, this.syncloop.get_state())
+    }
+
+    private async on_websocket_disconnect ( connection : Connection ) {
+        await this.onDisconnect( connection )
     }
 
     private on_tick () {

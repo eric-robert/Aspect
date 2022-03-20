@@ -13,7 +13,7 @@ export class EventBus {
     private logger : Logger
 
     constructor () {
-        this.logger = new Logger(`EventBus`, 'debug')
+        this.logger = new Logger(`EventBus`, 'info')
     }
 
     // Utils

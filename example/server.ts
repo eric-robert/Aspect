@@ -16,7 +16,13 @@ class ServerModule extends EngineModule{
     }
 
     start () {
-        this._serverController = new ServerController(this.engine, this.onConnected.bind(this))
+
+        this._serverController = new ServerController(
+            this.engine, 
+            this.onConnected.bind(this),
+            this.onDisconnected.bind(this)
+        )
+
         this._physics.add_entity(new SimpleObject({
             id: 1,
             position: 0,
@@ -26,7 +32,11 @@ class ServerModule extends EngineModule{
     }
 
     private onConnected (connection : Connection) {
-        this.logger.log('info', "Connected to server")
+        this.logger.log('info', `Client ${connection.id} connected to server`)
+    }
+
+    private onDisconnected ( connection : Connection ) {
+        this.logger.log('info', "Left the server")
     }
 
 }

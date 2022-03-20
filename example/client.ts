@@ -15,11 +15,19 @@ class ClientModule extends EngineModule{
     }
 
     start () {
-        this._clientController = new ClientController(this.engine, this.onConnected.bind(this))
+        this._clientController = new ClientController(
+            this.engine, 
+            this.onConnected.bind(this),
+            this.onDisconnected.bind(this)
+        )
     }
 
     private onConnected (connection : Connection) {
         this.logger.log('info', "Connected to server")
+    }
+
+    private onDisconnected () {
+        this.logger.log('info', "Left the server")
     }
 
 }

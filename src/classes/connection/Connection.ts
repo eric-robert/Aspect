@@ -18,7 +18,7 @@ export class Connection {
     constructor ( config : T.ConnectionConstructor ) {
 
         this.id = ++Connection._id;
-        this.logger = new Logger(`Connection ${this.id}`, 'debug')
+        this.logger = new Logger(`Connection ${this.id}`, 'info')
 
         // Allowed to artificially set latancy
         this.debug_latancy = config.options.debug_latancy || 0
