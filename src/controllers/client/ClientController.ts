@@ -10,6 +10,7 @@ import { Logger } from "simpler-logs"
 import { EventBus } from "../../classes/eventbus/EventBus"
 import { SyncController } from "../sync/SyncController"
 import { ConnectionNetworkedData } from "../../classes/connection/Connection.types"
+import { EventsRecorded } from "../action/Actions.types"
 
 export class ClientController  {
 
@@ -24,8 +25,7 @@ export class ClientController  {
     private eventBus : EventBus
     private syncControllers : SyncController<any,any>[]
 
-
-    constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function) {
+    constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function, private onProcessActions : Function) {
         
         // Grab settings
         this.serverIP = this.engine.withSetting( T.ClientSettings.SERVER_IP, 'localhost:3000') as string
@@ -85,8 +85,38 @@ export class ClientController  {
     }
 
     private on_tick () {
+
+        // Get actions that happened
+        const actionControllers = this.engine.withActionControllers()
+        
+        let send_actions = {}
+        actionControllers.forEach( a => {
+            Object.assign(send_actions, a.do_window_step())
+        })
+
+        let process_actions : EventsRecorded = {}
+        actionControllers.forEach( a => {
+            a.find_past_windows(this.connection.get_latancy()).forEach( w => {
+                Object.assign(process_actions, w)
+            })
+        })
+
+        // Send actions to server
+        // These will be sent ASAP
+        this.connection.send(Requests.ACTION_PUSH_EVENT, send_actions)
+
+        // Get the events that need to happen on the client to process
+        // These will be delayed by the latency
+        this.onProcessActions(process_actions)
+
+        // Request game tick
         this.eventBus.emit(Events.GAME_TICK)
         this.eventBus.do_processAll()
+
+        // Request render tick
+        this.eventBus.emit(Events.RENDER_REQUESTED)
+        this.eventBus.do_processAll()
+
     }
 
     private on_syncEvent (recieved : { [key : string] : any[] }) {

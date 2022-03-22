@@ -55,17 +55,6 @@ export class SimplePhysics extends EngineModule {
         
         this._syncController = new SyncController<SyncData, SimpleObject>(SimpleObject, 'physics')
         this.engine.register_sync_controller(this._syncController)
-
-        this.event_bus.subscribe(Events.GAME_TICK, this.on_game_tick.bind(this))
-    }
-
-    private on_game_tick () {
-        // Tick everything forward
-        this._syncController.tick_forwards()
-    }
-
-    public get_sync () {
-        return this._syncController.get_full_sync()
     }
 
     public add_entity ( entity : SimpleObject ) {

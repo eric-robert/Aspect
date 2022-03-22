@@ -8,6 +8,7 @@ import { Events, Requests } from "../../events"
 import { EventBus } from "../../classes/eventbus/EventBus"
 import * as T from './Server.types'
 import { SyncController } from "../sync/SyncController"
+import { EventsRecorded } from "../action/Actions.types"
 
 export class ServerController {
 
@@ -34,7 +35,10 @@ export class ServerController {
     // Reference to sync controllers 
     private syncControllers : SyncController<any,any>[]
 
-    constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function) {
+    // Events list
+    private waitingEvents : Map<Connection, EventsRecorded[]> = new Map()
+
+    constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function, private onActions : Function) {
 
         // Create instances
         this.multiMap = new MultiMap()
@@ -77,6 +81,10 @@ export class ServerController {
         let wantsConnectionData = false
         connection.listen(Requests.REQUEST_SYNC_LOOP, () => wantsSync = true)
         connection.listen(Requests.REQUEST_CONNECTION_INFO, () => wantsConnectionData = true)
+        connection.listen(Requests.ACTION_PUSH_EVENT, data => this.on_clientEvent(connection.id, data))
+
+        // Setup event records
+        this.waitingEvents.set(connection, [])
 
         // Wait for connection data request
         while (!wantsConnectionData) {
@@ -99,6 +107,15 @@ export class ServerController {
     }
 
     private on_tick () {
+
+        // Process all the events
+        const events = {}
+        this.waitingEvents.forEach( (v,k) => {
+            events[k.id] = v
+        })
+        this.onActions(events)
+
+        //
         this.eventBus.emit(Events.GAME_TICK)
         this.eventBus.do_processAll()
     }
@@ -124,6 +141,26 @@ export class ServerController {
         
         })
 
+    }
+
+    private on_clientEvent ( id : number, data : any ) {
+
+        const connection = this.multiMap.get_byID(id)
+        if (!connection) return
+
+        const events = this.waitingEvents.get(connection)
+        
+        if (!events) this.waitingEvents.set(connection, [data])
+        else events.push(data)
+
+    }
+
+    public join_syncgroup ( connection : Connection, group : string ) {
+        this.multiMap.add(group, connection)
+    }
+
+    public getConnection ( id : number ) {
+        return this.multiMap.get_byID(id)
     }
 
 }

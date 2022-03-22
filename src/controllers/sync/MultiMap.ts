@@ -52,8 +52,8 @@ export class MultiMap<K,V extends {id : number}> {
     public delete ( id : number ) {
 
         const to_delete = this.all_entities.get(id)
-
         const keys = this.lookupByValue.get(to_delete)
+        if (!keys) return
         keys.forEach( key => this.remove(key, to_delete))
 
     }

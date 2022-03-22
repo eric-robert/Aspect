@@ -2,6 +2,7 @@ import { MultiMap } from "./MultiMap"
 import {SyncableEntity} from './SyncableEntity'
 import { EntityBuilder, hasID } from "./Sync.types"
 import { Logger } from "simpler-logs"
+import { AspectEngine } from "../../engine/Engine"
 
 export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
 
@@ -15,6 +16,10 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
     add_entity ( entity : T ) {
         const group = entity.get_group()
         this.multiMap.add(group, entity)
+    }
+
+    remove_entity ( id : number ){
+        this.multiMap.delete(id)
     }
 
     // Get Sync Group
@@ -47,6 +52,7 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
             if ( entity ) entity.receive_sync_data(sync)
             else {
                 const newEntity = new this.builder(sync)
+                this.logger.log('debug', `${this.name} syncing new entity ${newEntity.id}`)
                 this.add_entity(newEntity)
             }
         })
@@ -63,18 +69,18 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
 
     // Tick
 
-    tick_forwards () {
+    tick_forwards ( engine : AspectEngine ) {
         
         // Interoplate
         this.multiMap.get_allValues().forEach( item => 
         {
-            const dirty = item.step_interpolation() 
+            const dirty = item.step_interpolation( engine ) 
 
             // If its marked as dirty it may need to move to a new group?
             if (dirty) {
                 const key = this.multiMap.get_keysByValue(item).entries().next().value[0]
                 const new_key = item.get_group()
-                if ( key != new_key ) {
+                if ( key != new_key) {
                     this.multiMap.add(new_key, item)
                     if (key)
                         this.multiMap.remove(key, item)

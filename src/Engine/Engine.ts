@@ -3,8 +3,14 @@ import { EngineModule } from './modules/Module'
 import { EventBus } from '../classes/eventbus/EventBus'
 import { Logger } from 'simpler-logs'
 import { SyncController } from '../controllers/sync/SyncController'
+import { Events } from '..'
+import { ActionController } from '../controllers/action/ActionController'
+
 
 export class AspectEngine {
+
+    // For usage in hard to reach places
+    static instance : AspectEngine = undefined as AspectEngine
 
     // A logger created for through winston which is used by all modules
     // to log messages. Child modules create child loggers to log messages
@@ -23,6 +29,9 @@ export class AspectEngine {
     // Adds a sync controller to the engine
     private _syncControllers : SyncController<any, any>[] = []
 
+    // Action Controllers to sync too
+    private _actionControllers : ActionController[] = []
+
     constructor ( config : T.AspectEngineConstuctor ){
 
         const total_modules = config.modules.length
@@ -36,11 +45,16 @@ export class AspectEngine {
         this.settings = config.settings
         this.eventBus = new EventBus ()
 
+        // Subscribe to eevents
+        this.eventBus.subscribe(Events.Events.GAME_TICK, this.on_game_tick.bind(this))
+
         // Create modules & start them up
         this.modules = config.modules.map( module => new module(this))
         this.modules.forEach( m => m.init())    
         this.modules.forEach( m => m.start())
-    
+
+        AspectEngine.instance = this
+
     }
 
     withSetting(name : string, _default : T.ValidSettings) : T.ValidSettings {
@@ -59,10 +73,22 @@ export class AspectEngine {
         return this._syncControllers
     }
 
+    withActionControllers() : ActionController[] {
+        return this._actionControllers
+    }
 
     // Adds a sync controller to the engine
     register_sync_controller ( syncController : SyncController<any, any>) {
         this._syncControllers.push(syncController)
+    }
+
+    // Adds an action controller to the engine
+    register_action_controller ( actionController : ActionController) {
+        this._actionControllers.push(actionController)
+    }
+
+    on_game_tick() {
+        this._syncControllers.forEach( s => s.tick_forwards(this) )
     }
 
 }
