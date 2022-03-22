@@ -111,6 +111,7 @@ export class ServerController {
         // Process all the events
         const events = {}
         this.waitingEvents.forEach( (v,k) => {
+            this.waitingEvents.set(k,[])
             events[k.id] = v
         })
         this.onActions(events)
@@ -126,18 +127,19 @@ export class ServerController {
 
         const data = this.syncControllers.map(s => ({name : s.name, data : s.get_full_sync()}))
         const connections = this.multiMap.get_allValues()
+        const gameTick = this.syncloop.get_tick()
 
         connections.forEach( connection => {
 
             const keys = this.multiMap.get_keysByValue(connection)
-            const sendData : any = {}
+            const syncs : any = {}
 
             keys.forEach( key => {
                 data.filter( d => d.data[key])
-                    .forEach( d => sendData[d.name] = d.data[key])
+                    .forEach( d => syncs[d.name] = d.data[key])
             })
 
-            connection.send(Requests.GAME_SYNC_EVENT, sendData)
+            connection.send(Requests.GAME_SYNC_EVENT, {syncs, gameTick})
         
         })
 

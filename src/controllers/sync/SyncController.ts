@@ -70,7 +70,7 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
     // Tick
 
     tick_forwards ( engine : AspectEngine ) {
-        
+
         // Interoplate
         this.multiMap.get_allValues().forEach( item => 
         {

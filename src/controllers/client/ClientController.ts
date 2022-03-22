@@ -84,7 +84,7 @@ export class ClientController  {
         await this.onDisconnect()
     }
 
-    private on_tick () {
+    private on_tick ( catchup : boolean ) {
 
         // Get actions that happened
         const actionControllers = this.engine.withActionControllers()
@@ -103,7 +103,8 @@ export class ClientController  {
 
         // Send actions to server
         // These will be sent ASAP
-        this.connection.send(Requests.ACTION_PUSH_EVENT, send_actions)
+        if (Object.keys(send_actions).length > 0) 
+            this.connection.send(Requests.ACTION_PUSH_EVENT, send_actions)
 
         // Get the events that need to happen on the client to process
         // These will be delayed by the latency
@@ -114,16 +115,22 @@ export class ClientController  {
         this.eventBus.do_processAll()
 
         // Request render tick
-        this.eventBus.emit(Events.RENDER_REQUESTED)
-        this.eventBus.do_processAll()
+        if (!catchup) {
+            this.eventBus.emit(Events.RENDER_REQUESTED)
+            this.eventBus.do_processAll()
+        }
 
     }
 
-    private on_syncEvent (recieved : { [key : string] : any[] }) {
-        
+    private on_syncEvent ( data : T.OnSyncEventData) {
+        if (!this.syncloop) return
+
+        let { gameTick, syncs } = data
+        this.syncloop.set_currentTick(gameTick)
+
         for ( let key in this.syncControllers ) {
             const controller = this.syncControllers[key]
-            const data = recieved[controller.name]
+            const data = syncs[controller.name]
             if (!data) controller.recieve_sync([])
             else controller.recieve_sync(data)
         }
