@@ -2,7 +2,7 @@ export interface SyncloopConstructor {
     start_time_ms ?: number
     ms_per_tick : number
     ticks_per_sync : number
-    on_tick ?: (catchup : boolean) => void,
+    on_tick ?: (id : number, catchup : boolean) => void,
     on_sync ?: (id : number) => void
 }
 

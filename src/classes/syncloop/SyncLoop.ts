@@ -8,7 +8,7 @@ export class SyncLoop {
     private ms_per_tick : number
     private ticks_per_sync : number 
     
-    private on_tick : (catchup : boolean) => void
+    private on_tick : (id : number, catchup : boolean) => void
     private on_sync : (id : number) => void
 
     private logger : Logger
@@ -42,13 +42,13 @@ export class SyncLoop {
         this.current_tick += ticks_behind
         const sync_tick = this.current_tick % this.ticks_per_sync == 0
 
-        this.logger.log('info', `Tick ${this.current_tick}, ${ticks_behind} ticks behind`)
+        this.logger.log('debug', `Tick ${this.current_tick}, ${ticks_behind} ticks behind`)
         
         // Execute ticks, marking those only used to catchup
         for (let i = 0; i < ticks_behind-1; i++) 
-            if (this.on_tick) this.on_tick(true)
+            if (this.on_tick) this.on_tick(this.current_tick, true)
 
-        if (this.on_tick) this.on_tick(false)
+        if (this.on_tick) this.on_tick(this.current_tick, false)
         if (this.on_sync && sync_tick) this.on_sync(this.current_tick)
 
         // Run loop again       

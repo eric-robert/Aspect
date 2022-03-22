@@ -84,21 +84,17 @@ export class ClientController  {
         await this.onDisconnect()
     }
 
-    private on_tick ( catchup : boolean ) {
+    private on_tick ( tick : number, catchup : boolean ) {
+
+        // First calculate how far to delay windows
+        const latency = this.connection.get_latancy()
+        const to_act = Math.floor(tick + (latency / this.syncloop.get_state().ms_per_tick))
 
         // Get actions that happened
         const actionControllers = this.engine.withActionControllers()
-        
         let send_actions = {}
         actionControllers.forEach( a => {
-            Object.assign(send_actions, a.do_window_step())
-        })
-
-        let process_actions : EventsRecorded = {}
-        actionControllers.forEach( a => {
-            a.find_past_windows(this.connection.get_latancy()).forEach( w => {
-                Object.assign(process_actions, w)
-            })
+            Object.assign(send_actions, a.do_window_step(to_act))
         })
 
         // Send actions to server
@@ -106,9 +102,15 @@ export class ClientController  {
         if (Object.keys(send_actions).length > 0) 
             this.connection.send(Requests.ACTION_PUSH_EVENT, send_actions)
 
+        // Processing historic actions
+        let do_actions = {}
+        actionControllers.forEach( a => {
+            Object.assign(do_actions, a.get_window(tick))
+        })
+
         // Get the events that need to happen on the client to process
         // These will be delayed by the latency
-        this.onProcessActions(process_actions)
+        this.onProcessActions(do_actions)
 
         // Request game tick
         this.eventBus.emit(Events.GAME_TICK)
