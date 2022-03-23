@@ -46,7 +46,7 @@ export class SyncLoop {
         
         // Execute ticks, marking those only used to catchup
         for (let i = 0; i < ticks_behind-1; i++) 
-            if (this.on_tick) this.on_tick(this.current_tick, true)
+            if (this.on_tick) this.on_tick(this.current_tick - (ticks_behind - i), true)
 
         if (this.on_tick) this.on_tick(this.current_tick, false)
         if (this.on_sync && sync_tick) this.on_sync(this.current_tick)

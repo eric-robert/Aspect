@@ -11,6 +11,8 @@ import { EventBus } from "../../classes/eventbus/EventBus"
 import { SyncController } from "../sync/SyncController"
 import { ConnectionNetworkedData } from "../../classes/connection/Connection.types"
 import { EventsRecorded } from "../action/Actions.types"
+import { Point3D } from "cubic-array"
+import { SyncableEntity } from "../sync/SyncableEntity"
 
 export class ClientController  {
 
@@ -23,7 +25,10 @@ export class ClientController  {
     private syncloop : SyncLoop
     private logger : Logger
     private eventBus : EventBus
-    private syncControllers : SyncController<any,any>[]
+    private syncControllers : SyncController<any,SyncableEntity<any>>[]
+
+    // For smoothing
+    private smooth_start : Map<string, Point3D> | undefined
 
     constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function, private onProcessActions : Function) {
         
@@ -86,21 +91,34 @@ export class ClientController  {
 
     private on_tick ( tick : number, catchup : boolean ) {
 
-        // First calculate how far to delay windows
+        // If we need to do any smoothing to the data, apply it here
+        if (!this.smooth_start && catchup) {
+            this.smooth_start = new Map()
+            this.syncControllers.forEach((controller,cid) => {
+                controller.multiMap.get_allValues().forEach(entity => {
+                    if (entity.apply_smoothing && entity.get_smoothing)
+                        this.smooth_start.set(`${cid}_${entity.id}`, entity.get_smoothing() )
+                })
+            })
+        }
+
+        // Calculate how far to delay windows
         const latency = this.connection.get_latancy()
         const to_act = Math.floor(tick + (latency / this.syncloop.get_state().ms_per_tick))
-
-        // Get actions that happened
         const actionControllers = this.engine.withActionControllers()
-        let send_actions = {}
-        actionControllers.forEach( a => {
-            Object.assign(send_actions, a.do_window_step(to_act))
-        })
 
-        // Send actions to server
-        // These will be sent ASAP
-        if (Object.keys(send_actions).length > 0) 
-            this.connection.send(Requests.ACTION_PUSH_EVENT, send_actions)
+        // Get actions that happened if
+        if (!catchup) {
+            let send_actions = {}
+            actionControllers.forEach( a => {
+                Object.assign(send_actions, a.do_window_step(to_act))
+            })
+
+            // Send actions to server
+            // These will be sent ASAP
+            if (Object.keys(send_actions).length > 0) 
+                this.connection.send(Requests.ACTION_PUSH_EVENT, send_actions)
+        }
 
         // Processing historic actions
         let do_actions = {}
@@ -122,7 +140,19 @@ export class ClientController  {
             this.eventBus.do_processAll()
         }
 
-    }
+        // Final smoothing
+        if (this.smooth_start && !catchup) {
+            this.smooth_start.forEach((smoothing, id) => {
+                const [cid, eid] = id.split('_')
+                const controller = this.syncControllers[+cid]
+                const entity = controller.multiMap.get_byID(+eid)
+                if (entity && entity.apply_smoothing) entity.apply_smoothing(smoothing)
+            })
+            this.smooth_start = undefined
+        }
+
+
+    }   
 
     private on_syncEvent ( data : T.OnSyncEventData) {
         if (!this.syncloop) return

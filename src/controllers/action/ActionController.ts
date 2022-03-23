@@ -18,19 +18,10 @@ export class ActionController {
         this.activeWindow = {}
         this.window_ids.push(tick)
         this.actionWindows.set(tick, window)
-        if (window.window['jump']) {
-            console.log(`Jumping waiting till tick ${tick}`)
-        }
         return window.window
     }
 
     get_window (tick : number){
-        if (this.actionWindows.has(tick)) {
-            if (this.actionWindows.get(tick).window['jump']) {
-                console.log("Hit Jump!")
-                console.log(this.actionWindows.get(tick).window)
-            }
-        }
         const target = this.actionWindows.get(tick)
         return target ? target.window : {}
     }
