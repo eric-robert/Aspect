@@ -21,7 +21,7 @@ export class Connection {
         this.logger = new Logger(`Connection ${this.id}`, 'info')
 
         // Allowed to artificially set latancy
-        this.debug_latancy = config.options.debug_latancy || 100
+        this.debug_latancy = config.options.debug_latancy || 0
 
         // Save instanses
         this.socket = config.socket
