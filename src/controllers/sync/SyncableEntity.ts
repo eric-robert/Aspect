@@ -9,4 +9,5 @@ export interface SyncableEntity<T> {
     step_interpolation ( engine : AspectEngine ) : boolean 
     apply_smoothing ?( smoothing : Point3D ) : void
     get_smoothing ?() : Point3D
+    on_tick ?() : void
 }

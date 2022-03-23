@@ -92,15 +92,7 @@ export class ClientController  {
     private on_tick ( tick : number, catchup : boolean ) {
 
         // If we need to do any smoothing to the data, apply it here
-        if (!this.smooth_start && catchup) {
-            this.smooth_start = new Map()
-            this.syncControllers.forEach((controller,cid) => {
-                controller.multiMap.get_allValues().forEach(entity => {
-                    if (entity.apply_smoothing && entity.get_smoothing)
-                        this.smooth_start.set(`${cid}_${entity.id}`, entity.get_smoothing() )
-                })
-            })
-        }
+        
 
         // Calculate how far to delay windows
         const latency = this.connection.get_latancy()
@@ -134,13 +126,7 @@ export class ClientController  {
         this.eventBus.emit(Events.GAME_TICK)
         this.eventBus.do_processAll()
 
-        // Request render tick
-        if (!catchup) {
-            this.eventBus.emit(Events.RENDER_REQUESTED)
-            this.eventBus.do_processAll()
-        }
-
-        // Final smoothing
+        // Final smoothing step
         if (this.smooth_start && !catchup) {
             this.smooth_start.forEach((smoothing, id) => {
                 const [cid, eid] = id.split('_')
@@ -151,6 +137,22 @@ export class ClientController  {
             this.smooth_start = undefined
         }
 
+        if (!catchup){
+            this.syncControllers.forEach((controller,cid) => {
+                controller.multiMap.get_allValues().forEach(entity => {
+                    if (entity.on_tick)
+                        entity.on_tick()
+                })
+            })
+        }
+
+
+        // Request render tick
+        if (!catchup) {
+            this.eventBus.emit(Events.RENDER_REQUESTED)
+            this.eventBus.do_processAll()
+        }
+
 
     }   
 
@@ -159,6 +161,15 @@ export class ClientController  {
 
         let { gameTick, syncs } = data
         this.syncloop.set_currentTick(gameTick)
+
+        // Do smoothing across sync 
+        this.smooth_start = new Map()
+        this.syncControllers.forEach((controller,cid) => {
+            controller.multiMap.get_allValues().forEach(entity => {
+                if (entity.apply_smoothing && entity.get_smoothing)
+                    this.smooth_start.set(`${cid}_${entity.id}`, entity.get_smoothing() )
+            })
+        })
 
         for ( let key in this.syncControllers ) {
             const controller = this.syncControllers[key]
