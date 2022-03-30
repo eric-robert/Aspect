@@ -10,6 +10,8 @@ export class SyncLoop {
     
     private on_tick : (id : number, catchup : boolean) => void
     private on_sync : (id : number) => void
+    private wait_time = 0
+    private wait_window = 0
 
     private logger : Logger
 
@@ -27,6 +29,9 @@ export class SyncLoop {
         const since_start = Date.now() - this.start_time_ms
         this.current_tick = Math.floor(since_start / this.ms_per_tick)
 
+        // Metrics
+        this.wait_window = Date.now()
+
         // Start it up
         this.on_tick = config.on_tick || (_ => {})
         this.on_sync = config.on_sync || (_ => {})
@@ -34,6 +39,17 @@ export class SyncLoop {
     }
 
     execute_tick () {
+
+        // Windowed wait
+        const now = Date.now()
+        if ( now - this.wait_window > 10000) {
+            const over = now - this.wait_window - 10000
+            this.wait_time -= over
+            const utilization = 1 - (this.wait_time / 10000)
+            this.logger.log('info', `Utilization: ${Math.floor(utilization * 100)}%`)
+            this.wait_window = now
+            this.wait_time = 0
+        }
 
         // Execute ticks as needed
         let ticks_behind = this.get_ticksBehind() + 1
@@ -55,6 +71,11 @@ export class SyncLoop {
         const expected_next = this.current_tick * this.ms_per_tick + this.start_time_ms 
         const end_time = Date.now()
         const next_loop = expected_next - end_time
+
+        // Metrics
+        this.wait_time += next_loop
+
+        // Wait for next loop
         setTimeout(() => this.execute_tick(), next_loop)
     }
 
