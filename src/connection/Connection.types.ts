@@ -6,9 +6,7 @@ export interface ConnectionNetworkedData {
 
 export interface ConnectionConstructor {
     socket : Socket,
-    options : {
-        debug_latancy ?: number,
-    }
+    debug_latancy ?: number
 }
 
 export type WrappedPayload<Data> = {

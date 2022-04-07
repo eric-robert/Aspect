@@ -1,8 +1,8 @@
-import { MultiMap } from "./MultiMap"
+import { MultiMap } from "cubic-array"
 import {SyncableEntity} from './SyncableEntity'
 import { EntityBuilder, hasID } from "./Sync.types"
 import { Logger } from "simpler-logs"
-import { AspectEngine } from "../../engine/Engine"
+import { AspectEngine } from "../../engine/AspectEngine"
 
 export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
 
@@ -19,7 +19,7 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
     }
 
     remove_entity ( id : number ){
-        this.multiMap.delete(id)
+        this.multiMap.deleteID(id)
     }
 
     // Get Sync Group
@@ -63,7 +63,7 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
         
         if (got_size < all_size) {
             const missing = this.multiMap.get_allValues().filter( item => data.find( d => d.id == item.id ) == undefined )
-            missing.forEach( item => this.multiMap.delete(item.id))
+            missing.forEach( item => this.multiMap.deleteID(item.id))
         }
     }
 
@@ -83,7 +83,7 @@ export class SyncController<U extends hasID, T extends SyncableEntity<U>>{
                 if ( key != new_key) {
                     this.multiMap.add(new_key, item)
                     if (key)
-                        this.multiMap.remove(key, item)
+                        this.multiMap.removePair(key, item)
                 }
             }
         })

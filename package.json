@@ -1,6 +1,6 @@
 {
   "name": "fire-aspect",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "a wrapper for socket.io that runs a node.js real-time game server",
   "main": "dist/index.js",
   "author": "eric-robert",
@@ -19,8 +19,10 @@
     "typescript": "^4.6.2"
   },
   "dependencies": {
-    "cubic-array": "^1.1.1",
-    "simpler-logs": "1.0.7",
+    "cubic-array": "^1.2.1",
+    "instance-pubsub": "^1.1.0",
+    "pubsub-js": "^1.9.4",
+    "simpler-logs": "^2.0.0",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1"
   },

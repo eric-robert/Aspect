@@ -1,11 +1,13 @@
 import { Logger } from "simpler-logs"
 import { Server, Socket } from "socket.io"
-import { Connection } from "../../classes/connection/Connection"
-import { MultiMap } from "../sync/MultiMap"
-import { SyncLoop } from "../../classes/syncloop/SyncLoop"
-import { AspectEngine } from "../../engine/Engine"
-import { Events, Requests } from "../../events"
-import { EventBus } from "../../classes/eventbus/EventBus"
+import { createServer as createHttpsServer} from "https"
+import { createServer as createHttpServer } from "http"
+import { Connection } from "../../connection/Connection"
+import { MultiMap } from "cubic-array"
+import { SyncLoop } from "../../syncloop/SyncLoop"
+import { AspectEngine } from "../../engine/AspectEngine"
+import { Events, Requests } from "../../engine/events"
+import { EventBus } from "../../classes/eventBus/EventBus"
 import * as T from './Server.types'
 import { SyncController } from "../sync/SyncController"
 import { EventsRecorded } from "../action/Actions.types"
@@ -41,6 +43,7 @@ export class ServerController {
     constructor (private engine : AspectEngine, private onConnect : Function, private onDisconnect : Function, private onActions : Function) {
 
         // Create instances
+        this.logger = new Logger('Server', 'info')
         this.multiMap = new MultiMap()
         this.eventBus = this.engine.withEventBus()
         this.syncControllers = this.engine.withSyncControllers()
@@ -50,12 +53,15 @@ export class ServerController {
         this.ms_per_tick = this.engine.withSetting( T.ServerSettings.MS_PER_TICK, 1000) as number
         this.ticks_per_sync = this.engine.withSetting( T.ServerSettings.TICKS_PER_SYNC, 1) as number        
 
+        // Create server if https is enabled
+       
+
         // Start server
-        this.logger = new Logger('Server', 'info')
         this.logger.log('info', `Starting server on port ${this.port}`)
-        this.server = new Server( this.port, { serveClient: false, cors: {origin: '*'}})
+        this.server = new Server( server, { serveClient: false, cors: {origin: '*'}})
         this.server.on('connection', this.on_websocket_connection.bind(this))
         this.server.on('disconnect', this.on_websocket_disconnect.bind(this))
+        server.listen(this.port)
 
         // Start sync loop
         this.syncloop = new SyncLoop({

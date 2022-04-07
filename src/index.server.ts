@@ -1,1 +1,1 @@
-export {ServerController} from './controllers/server/ServerController'
+export {AspectServer} from './server/AspectServer'

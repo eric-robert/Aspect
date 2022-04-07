@@ -5,6 +5,7 @@ import {Logger} from 'simpler-logs'
 
 export class Connection {
 
+    // Give each connection an id
     private static _id = 0
     public id : number
 
@@ -18,15 +19,11 @@ export class Connection {
     constructor ( config : T.ConnectionConstructor ) {
 
         this.id = ++Connection._id;
-        this.logger = new Logger(`Connection ${this.id}`, 'info')
-
-        // Allowed to artificially set latancy
-        this.debug_latancy = config.options.debug_latancy || 0
-
-        // Save instanses
         this.socket = config.socket
-        this.metrics = new Metrics()
+        this.debug_latancy = config.debug_latancy || 0
 
+        this.logger = new Logger(`Connection ${this.id}`)
+        this.metrics = new Metrics()
     }
 
     // Private
@@ -42,21 +39,25 @@ export class Connection {
 
     // Public
 
-    public send<Data> (event : string, data : Data) {
-        this.logger.log('debug', `Sending event: '${event}'`)
+    send<Data> (event : string, data : Data) {
         const wrapped = this.get_wrapped(data)
-        const send = () => this.socket.emit(event, wrapped) 
+        const send = () => { 
+            this.socket.emit(event, wrapped) 
+            //this.logger.log(`Sending event: '${event}'`)
+        }
         setTimeout(send, this.debug_latancy)
     }
 
-    public listen<Data> (event : string, callback : T.Callback<Data>) {
-        this.logger.log('debug', `Listening for event: '${event}'`)
-        
+    listen<Data> (event : string, callback : T.Callback<Data>) {
         const id = ++Connection._id
-
-        const listener = (response : T.WrappedPayload<Data>) => {
+        const listener = (wrapped_data : T.WrappedPayload<Data>) => {
             setTimeout( () => {
-                callback(this.get_unwrapped(response))
+                const unwrapped = this.get_unwrapped(wrapped_data)
+                const response = callback(unwrapped)
+                //this.logger.log(`Recieving event: '${event}'`)
+                if (event.includes('request')) {
+                    this.send(event.replace('request', 'response'), response)
+                }
             }, this.debug_latancy )
         }
 
@@ -67,29 +68,40 @@ export class Connection {
 
         return id
     }
-
-    public async wait_for (event : string) {
+    
+    async wait_for (event : string) {
         return new Promise((resolve, reject) => {
             const id = this.listen(event, data => {
-                this.remove_listener(id)
                 resolve(data)
+                this.remove_listener(id)
             })
         })
         
     }
     
-    public remove_listener (id : number) {
+    remove_listener (id : number) {
         const listener = this.connectionListeners.get(id)
         if (!listener) return
         const {event,callback} = listener 
-        this.logger.log('debug', `Removing listener for event: '${event}'`)
+        //this.logger.log(`Removing listener for event: '${event}'`)
         this.connectionListeners.delete(id)
         this.socket.off(event, callback)
     }
 
+    async request (event : string, data ?: any) {
+        const response_event = event.replace('request', 'response')
+        this.send(event, data)
+        const response = await this.wait_for(response_event)
+        return response as any
+    }
+
     // Getters
 
-    public get_latancy () : number { return this.metrics.get_latancy() }
+    get_latancy () : number { return this.metrics.get_latancy() }
+    set_id (id : number) { 
+        this.id = id 
+        this.logger = new Logger(`Connection ${this.id}`)
+    }
 
 
 }

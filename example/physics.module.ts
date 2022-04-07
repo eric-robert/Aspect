@@ -1,5 +1,4 @@
-import { Events } from '../src/events'
-import {AspectEngine, SyncController, Connection, SyncableEntity, EngineModule} from '../src/index'
+import {AspectEngine, SyncController, Connection, SyncableEntity, EngineModule} from '../src/index.shared'
 
 interface SyncData {
     id: number
@@ -39,26 +38,23 @@ export class SimpleObject implements SyncableEntity<SyncData> {
         this._acceleration = data.acceleration
     }
 
-    public step_interpolation() : boolean {
+    public tick_forward() {
         this._position += this._velocity
         this._velocity += this._acceleration
-        return true
     }
-
 }
 
 export class SimplePhysics extends EngineModule {
 
     private _syncController : SyncController<SyncData, SimpleObject>
 
-    init(): void {
-        
+    init() {
         this._syncController = new SyncController<SyncData, SimpleObject>(SimpleObject, 'physics')
         this.engine.register_sync_controller(this._syncController)
     }
 
-    public add_entity ( entity : SimpleObject ) {
-        this._syncController.add_entity(entity)
+    add_entity ( entity : SimpleObject ) {
+        this._syncController.begin_syncing_entity(entity)
     }
 
 }

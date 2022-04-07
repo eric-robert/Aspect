@@ -1,5 +1,5 @@
 import { Point3D } from "cubic-array"
-import { AspectEngine } from "../../engine/Engine"
+import { AspectEngine } from "../../engine/AspectEngine"
 
 export interface SyncableEntity<T> {
     id : number
