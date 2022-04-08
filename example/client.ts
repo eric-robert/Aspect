@@ -6,14 +6,3 @@ const client = new AspectClient({
         SimplePhysics
     ]
 })
-
-
-setTimeout(() => {
-    client.recordAction({
-        label : 'move',
-        data : {
-            x : 1,
-            y : 1
-        }
-    })
-}, 2000)

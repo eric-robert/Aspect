@@ -1164,10 +1164,10 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-cubic-array@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/cubic-array/-/cubic-array-1.2.1.tgz#96495d05e0185071dcbf60337bf1783881cd181e"
-  integrity sha512-exWaCIlXIc/QLr03oILl4CSJzqS3h0dtuimzgA5/fOCdDDqkYJPXnRXDdaf+YAeQGfptiP30QH86/51BMgeMHQ==
+cubic-array@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/cubic-array/-/cubic-array-1.2.3.tgz#f09acc6a0b7c2c3c1542762e94724f8c057d80c7"
+  integrity sha512-TmAlSO0efdXr0zV7DJUpk/ki6L91dQw1rEShFb52//cr+qMoUoC1K27LfzGfa4x7LST1eldmsUO/wtEUYrl6kQ==
 
 data-urls@^2.0.0:
   version "2.0.0"
@@ -1674,10 +1674,10 @@ ini@~1.3.0:
   resolved "https://registry.npmjs.org/ini/-/ini-1.3.8.tgz"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
-instance-pubsub@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/instance-pubsub/-/instance-pubsub-1.1.0.tgz#325df90a562c5628a006d2b5603830429e4b34cd"
-  integrity sha512-Z3VUD2/mLgIpvNfC91mq4QhnVGyuxujPO0QmYMWgvmpyfIyMo7dfvRJAXt7tjk1/PTBkcopohejPpLcO0XqzGw==
+instance-pubsub@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/instance-pubsub/-/instance-pubsub-1.1.2.tgz#241f9d41621634112963a860328df37e52a82ac6"
+  integrity sha512-oDbjUOi/SUepnrxuRynKt8ckoLCNPbMS5ehuSGdIbf1FMU59efJOSIL8NJeCScuRJrzDWdut3LF34hod55kDmA==
   dependencies:
     simple-logger "^1.0.1"
     ts-node "^10.7.0"
@@ -2849,10 +2849,10 @@ simple-logger@^1.0.1:
   resolved "https://registry.yarnpkg.com/simple-logger/-/simple-logger-1.0.1.tgz#8930bea16dde4364ae16ca0f5cffee9728436c17"
   integrity sha1-iTC+oW3eQ2SuFsoPXP/ulyhDbBc=
 
-simpler-logs@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/simpler-logs/-/simpler-logs-2.0.0.tgz#a4a1e29036bc7008b655ae5b90c347a72596ddd2"
-  integrity sha512-65cXdcnT76V/ZlPuLn8yZCR/K+XGcn07vRGC/aqcJR8uoegUYkkBt5BhSQRl5bkZS3qnI0DDA6k/qIOSa5nxyQ==
+simpler-logs@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/simpler-logs/-/simpler-logs-2.0.3.tgz#8a3404cb06bebd28a1ba283bba28dd76af60a550"
+  integrity sha512-tPVwYs2x+TSE2ipjEOXKLA4sRoknOseo71x7+Ypv2DuqK1wFXphQNvgpDGjv/VDUHImIgYwXNVFkp31Fuvr6kg==
 
 sisteransi@^1.0.5:
   version "1.0.5"

@@ -27,8 +27,15 @@ export const Events = {
     // Game ticks move forward server events and such
     GAME_TICK : 'game-tick',
 
-    // Render ticks actually render the game
-    RENDER_TICK : 'render-tick',
+    // Render is doable
+    RENDERABLE : 'render',
+
+    // When a client joins
+    CLIENT_JOIN : 'client-join',
+
+    // When a client leaves
+    CLIENT_LEAVE : 'client-leave',
+    
 }
 
 

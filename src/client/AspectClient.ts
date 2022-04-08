@@ -47,21 +47,43 @@ export class AspectClient {
     // Sync Loop Callbacks
 
     private onTick ( data : SyncLoopTypes.TickInfo) {
-        const actions = this.windowedActions.get_window(data.tick)
+        const syncControllers = this.engine.withSyncControllers()
         const pubsub = this.engine.withPubSub()
 
         const eventBody : TickEventBody = {
             tick : data.tick,
-            actions,
+            actions : this.getClientActions(data.tick)
         }
-
+        
         pubsub.emit(Events.INTERP_TICK, eventBody)
         pubsub.do_processAll()
+        syncControllers.forEach( s => s.tick_forwards( this.engine ))
+        if (data.is_catchup) return
+        pubsub.emit(Events.GAME_TICK, eventBody)
+        pubsub.do_processAll()
+        pubsub.emit(Events.RENDERABLE)
+        pubsub.do_processAll()
+
+
+    }
+
+    private getClientActions ( tick : number ) {
+        const result = {}
+        const window = this.windowedActions.get_window(tick)
+        for ( let id in window ) {
+            result[window[id].label] = window[id].data
+        }
+        return {
+            [this.connection.getId()] : result
+        }
     }
 
     private async onSelfConnected ( connection : Connection ) {
         this.logger.log('Connected to server', 'important')   
         this.conntected = true
+
+        // Get Controllers
+        const pubsub = this.engine.withPubSub()
 
         // Setup listeners
         connection.listen(Requests.GAME_SYNC_EVENT, this.onRecieveSync.bind(this))
@@ -77,6 +99,9 @@ export class AspectClient {
         connection.set_id(connection_data)
         this.syncloop.recieve_sync(syncloop_data)
         
+        // Emit events
+        pubsub.emit(Events.CLIENT_JOIN, connection)
+
     }
 
     public recordAction ( action : ActionEvent ) {
@@ -108,7 +133,12 @@ export class AspectClient {
     }
 
     private async onSelfDisconnected ( connection : Connection ) {
-        this.logger.log('Disconnected from server', 'important')   
+        this.logger.log('Disconnected from server', 'important') 
+        
+        // Emit events
+        const pubsub = this.engine.withPubSub()
+        pubsub.emit(Events.CLIENT_LEAVE, connection)
+
     }
 
 }

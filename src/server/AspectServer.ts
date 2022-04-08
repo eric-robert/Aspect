@@ -102,9 +102,10 @@ export class AspectServer {
         for ( let client of clients ) {
 
             const groups = this.server.getGroups( client )
+            const actions = this.consumedActions.get(client.id) || []
             const emitData : SyncEventData = {
                 tick : data.tick,
-                included_actions : [...this.consumedActions.get(client.id)],
+                included_actions : [...actions],
                 states : {}
             }
             
@@ -126,6 +127,9 @@ export class AspectServer {
     private async onClientConnect ( connection : Connection ) {
         this.logger.log(`Client connected given ID ${connection.id}`, 'important')
 
+        // Get controllers
+        const pubsub = this.engine.withPubSub()
+
         // Setup actions
         this.actionRecords.set(connection.id, new WindowedActions())
         this.consumedActions.set(connection.id, new Set())
@@ -138,15 +142,14 @@ export class AspectServer {
         // Wait for client to be ready
         await new Promise( resolve => setTimeout(resolve, 50) )
 
-        this.server.joinGroup('0', connection)
-        this.server.joinGroup('1', connection)
+        // Send event
+        pubsub.emit(Events.CLIENT_JOIN, connection)
 
     }
 
     private async clientSendsAction ( connection : Connection, action : ActionEvent ) {
         const targetWindow = this.actionRecords.get(connection.id)
         if (!targetWindow) return
-        this.logger.log(`Client ${connection.id} sent action ${action.label}`)
 
         const nextTick = this.syncloop.get_next_tick()
         const targetTick = action.target_tick < nextTick ? nextTick : action.target_tick
@@ -157,8 +160,25 @@ export class AspectServer {
     private async onClientDisconnect ( connection : Connection ) {
         this.logger.log(`Client ${connection.id} disconnected`, 'important')
 
+        // Get controllers
+        const pubsub = this.engine.withPubSub()
+
+        // Remove the action listeners
         this.actionRecords.delete(connection.id)
         this.consumedActions.delete(connection.id)
+
+        // Send event
+        pubsub.emit(Events.CLIENT_LEAVE, connection)
     }
+
+    // Public Methods
+
+    public joinGroup ( group : string, connection : Connection ) {
+        this.server.joinGroup(group, connection)
+    }
+    public leaveGroup ( group : string, connection : Connection ) {
+        this.server.leaveGroup(group, connection)
+    }
+
 
 }

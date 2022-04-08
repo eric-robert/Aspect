@@ -51,5 +51,8 @@ export class WebsocketClient {
     public send ( event : string, data ?: any ) {
         this.connection.send(event, data)
     }
+    public getId () {
+        return this.connection.id
+    }
 
 }

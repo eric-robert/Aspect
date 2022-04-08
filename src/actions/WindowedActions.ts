@@ -12,7 +12,7 @@ export class WindowedActions {
     constructor () {
         this.activeWindow = 0
         this.actionWindows = new Map()
-        this.logger = new Logger('WindowedActions')
+        this.logger = new Logger('Windowed-actions')
     }
 
     purge_old_windows ( cutoff : number ) {
@@ -38,8 +38,7 @@ export class WindowedActions {
     record_action ( event : ActionEvent ) {
 
         const actionID = event.id || WindowedActions.actionID++
-        this.logger.log(`Recording action ${actionID}-${event.label} for tick ${event.target_tick}`)
-
+        
         if ( !this.actionWindows.has(event.target_tick) )
             this.actionWindows.set(event.target_tick, {})
 

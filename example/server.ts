@@ -1,18 +1,10 @@
 import {AspectServer} from '../src/index.server'
 import {SimplePhysics, SimpleObject} from './physics.module'
+import { ServerModule } from './server.module'
 
 const server = new AspectServer({
     modules: [
-        SimplePhysics
+        SimplePhysics,
+        ServerModule
     ]
 })
-
-setTimeout(() => {
-    const entity = new SimpleObject({
-        id : 0,
-        position : 0,
-        velocity : 0,
-        acceleration : 0
-    })
-    server.engine.withSyncControllers()[0].begin_syncing_entity(entity)
-}, 200)

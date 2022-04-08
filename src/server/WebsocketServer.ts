@@ -65,6 +65,7 @@ export class WebsocketServer {
 
     private on_disconnect ( connection : Connection ) {
 
+        this.clients.deleteValue(connection)
         this.clients.deleteID(connection.id)
         this.onDisconnect(connection)
     

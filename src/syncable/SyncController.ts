@@ -13,7 +13,8 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
     constructor ( private builder : EntityBuilder<EntitySnapshot, Entity>, public name : string ) { 
 
         this.entityLookup = new MultiMap()
-        this.logger = new Logger(`${this.name}-syncing`)
+        
+        this.logger = new Logger(`${this.name.at(0).toUpperCase()}${this.name.substring(1)}-syncing`)
 
     }
 
@@ -70,7 +71,7 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
                 entitySource.receive_sync_data(entity)
 
             else {
-                this.logger.log(`${this.name} recieved new entity ${entity.id}`)
+                this.logger.log(`${this.name} recieved new entity ${entity.id}`, 'debug')
                 this.begin_syncing_entity( new this.builder(entity) )
             }
 
@@ -84,7 +85,7 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
         if (got_size < all_size) {
             const missing = this.entityLookup.get_allValues().filter( item => data.find( d => d.id == item.id ) == undefined )
             missing.forEach( item => this.entityLookup.deleteID(item.id))
-            this.logger.log(`Removed entities from group: ${missing.length} `)
+            this.logger.log(`Removed entities with ids: ${missing.map(e => e.id)}`, 'debug')
         }
 
     }
@@ -110,6 +111,15 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
 
         }
         
+    }
+
+    // Get
+
+    get_entity_by_id ( id : number ) {
+        return this.entityLookup.get_byID(id)
+    }
+    get_all () {
+        return this.entityLookup.get_allValues()
     }
 
 }

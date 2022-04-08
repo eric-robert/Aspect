@@ -104,7 +104,7 @@ export class SyncLoop {
             const over = now - this.wait_window - this.wait_windowSize
             const utilization = 1 - ((this.wait_time - over) / this.wait_windowSize)
             
-            this.logger.log(`Utilization: ${Math.floor(utilization * 100)}%`)
+            this.logger.log(`Utilization: ${Math.floor(utilization * 100)}%`, 'debug')
             this.wait_window = now
             this.wait_time = 0
         }
