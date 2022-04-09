@@ -1,7 +1,8 @@
 import { AspectEngine, EngineModule } from "../index.shared";
 
 export interface Config {
-    modules ?: Class<EngineModule>[]
+    modules ?: Class<EngineModule>[],
+    metrics ?: Function
 }
 
 export interface Class<T> {

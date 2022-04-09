@@ -73,9 +73,10 @@ export class SyncLoop {
             const is_catchup = i < behind
             const tick = this.current_tick - behind + i
             const should_sync = tick % this.ticks_per_sync == 0 && !is_catchup
+            const is_first = i == 1
 
             if (this.on_tick) 
-                this.on_tick({tick, is_catchup})
+                this.on_tick({tick, is_catchup, is_first})
             if (should_sync && this.on_sync)
                 this.on_sync({tick})
             

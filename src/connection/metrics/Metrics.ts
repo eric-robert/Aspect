@@ -3,7 +3,7 @@ export class Metrics {
     private latancy : number = 0
     private running_latancy : number[] = []
 
-    constructor ( private history : number = 40 ){}
+    constructor ( private history : number = 10 ){}
 
     update_latancy ( time : number ) {
 

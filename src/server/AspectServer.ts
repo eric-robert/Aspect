@@ -67,7 +67,7 @@ export class AspectServer {
         pubsub.do_processAll()
 
         // Tick forward syncable objects
-        syncControllers.forEach( s => s.tick_forwards( this.engine ))
+        syncControllers.forEach( s => s.tick_forwards( this.engine, true ))
         
     }
 

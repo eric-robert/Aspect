@@ -49,7 +49,7 @@ export class WebsocketServer {
             this.logger.log('No HTTPS creds provided, starting HTTP server')
         }
 
-        this.server = new Server( server, { serveClient: false, cors: {origin: '*'}})
+        this.server = new Server( server, { serveClient: false, cors: {origin: '*', methods : ['GET', 'POST', 'PUT', 'DELETE']}})
         this.server.on('connection', this.on_connection.bind(this))
         server.listen(port)
 

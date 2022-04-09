@@ -92,7 +92,15 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
 
     // Tick
 
-    tick_forwards ( engine : AspectEngine ) {
+    pre_sync () {
+        const enties = this.entityLookup.get_allValues()
+        for ( const entity of enties ) {
+            if (entity.before_sync)
+                entity.before_sync()
+        }
+    }
+
+    tick_forwards ( engine : AspectEngine, first_time : boolean ) {
 
         const enties = this.entityLookup.get_allValues()
         
@@ -100,7 +108,7 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
 
             const get_group = () => entity.get_group ? entity.get_group() : 'global'
             const previous_position = get_group()
-            entity.tick_forward() 
+            entity.tick_forward(first_time) 
             const new_position = get_group()
 
             if ( previous_position != new_position ) {
@@ -111,6 +119,14 @@ export class SyncController<EntitySnapshot extends hasID, Entity extends Syncabl
 
         }
         
+    }
+
+    post_sync () {
+        const enties = this.entityLookup.get_allValues()
+        for ( const entity of enties ) {
+            if (entity.after_sync)
+                entity.after_sync()
+        }
     }
 
     // Get

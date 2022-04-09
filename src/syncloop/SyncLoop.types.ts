@@ -10,6 +10,7 @@ export interface SyncloopConstructor {
 export interface TickInfo {
     tick:       number
     is_catchup: boolean
+    is_first:   boolean
 }
 
 export interface SyncInfo {

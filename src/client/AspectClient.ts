@@ -14,6 +14,8 @@ export class AspectClient {
     private connection : WebsocketClient
     private windowedActions : WindowedActions
     private conntected = false
+    private doingCatchup = false
+    private pullMetrics : Function
 
     constructor ( config ?: T.Config ) {
 
@@ -41,6 +43,9 @@ export class AspectClient {
 
         // Create Actions
         this.windowedActions = new WindowedActions()
+
+        // Metrics reporting
+        this.pullMetrics = config.metrics || null
         
     }
 
@@ -57,13 +62,18 @@ export class AspectClient {
         
         pubsub.emit(Events.INTERP_TICK, eventBody)
         pubsub.do_processAll()
-        syncControllers.forEach( s => s.tick_forwards( this.engine ))
+        syncControllers.forEach( s => s.tick_forwards( this.engine, !data.is_catchup ))
         if (data.is_catchup) return
         pubsub.emit(Events.GAME_TICK, eventBody)
         pubsub.do_processAll()
+        
+        if (this.doingCatchup) {
+            this.doingCatchup = false
+            syncControllers.forEach( s => s.post_sync())
+        }
+        
         pubsub.emit(Events.RENDERABLE)
         pubsub.do_processAll()
-
 
     }
 
@@ -121,13 +131,23 @@ export class AspectClient {
         // Handle purged actions
         this.windowedActions.purge_old_windows( data.tick )
         this.windowedActions.purge_events(data.included_actions)
+        this.syncloop.set_currentTick(data.tick)
 
         // Handle sync
         const syncControllers = this.engine.withSyncControllers()
+        this.doingCatchup = true    
+        syncControllers.forEach( s => s.pre_sync())
         for ( let controller of syncControllers ) {
             const states = data.states[controller.name]
             if (! states) continue
             controller.recieve_sync(states)
+        }
+
+        // Send Metrics
+        if (this.pullMetrics) {
+            this.pullMetrics({
+                latency : this.connection.get_latency()
+            })
         }
 
     }
