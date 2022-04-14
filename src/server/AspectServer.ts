@@ -41,7 +41,7 @@ export class AspectServer {
             on_tick : this.onTick.bind(this)
         })
         this.syncloop.start({
-            ms_per_tick : 20,
+            ms_per_tick : 200,
             ticks_per_sync : 10
         })
 
@@ -180,5 +180,9 @@ export class AspectServer {
         this.server.leaveGroup(group, connection)
     }
 
+    public sendToGroup (group : string, request : string, data : any) {
+        const connections = this.server.getConnections(group)
+        connections.forEach( c => c.send(request, data) )
+    }
 
 }

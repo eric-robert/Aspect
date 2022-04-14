@@ -22,8 +22,8 @@ export class ServerModule extends EngineModule{
         const new_object = new SimpleObject({ 
             id : connection.id,
             position : 0,
-            velocity : 0,
-            acceleration : 0.001
+            velocity : 1,
+            acceleration : 0
         })
         this.physics.add_entity(new_object)
         this.server.joinGroup('0', connection)

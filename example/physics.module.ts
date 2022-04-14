@@ -61,5 +61,4 @@ export class SimplePhysics extends EngineModule {
         this._syncController.stop_syncing_entity(id)
     }
 
-
 }

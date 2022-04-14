@@ -89,4 +89,8 @@ export class WebsocketServer {
         return [...this.clients.get_keysByValue(connection)]
     }
 
+    public getConnections ( group : string ) : Connection[] {
+        return [...this.clients.get_valuesByKey(group)]
+    }
+
 }
