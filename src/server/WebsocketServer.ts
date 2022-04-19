@@ -29,7 +29,7 @@ export class WebsocketServer {
         config.port = config.port || 3000
         config.https_key = config.https_key || ''
         config.https_cert = config.https_cert || ''
-        const {port, https_key, https_cert} = config
+        const {port} = config
 
         this.onConnect = config.onConnect || (() => {})
         this.onDisconnect = config.onDisconnect || (() => {})
@@ -38,26 +38,20 @@ export class WebsocketServer {
         this.logger.log(`Starting Websocket Server on port ${port}`)
         this.clients = new MultiMap()
 
-        const use_https = https_cert.length > 0 && https_cert.length > 0
-        let server = null as any
-        if (use_https) {
-            server = createHttpsServer({ key : https_key, cert : https_cert })
-            this.logger.log('HTTPS Creds provided, starting HTTPS server')
-        }
-        else {
-            server = createHttpServer()
-            this.logger.log('No HTTPS creds provided, starting HTTP server')
-        }
-
-        this.server = new Server( server, { serveClient: false, cors: {origin: '*', methods : ['GET', 'POST', 'PUT', 'DELETE']}})
+        this.server = new Server( port, { 
+            serveClient: false, 
+            cors: {
+                origin: '*', 
+                methods : ['GET', 'POST', 'PUT', 'DELETE']
+            }
+        })
         this.server.on('connection', this.on_connection.bind(this))
-        server.listen(port)
 
     }
 
     private on_connection ( socket : Socket ) {
 
-        const connection = new Connection({ socket })
+        const connection = new Connection({ socket, you_provide_time: true  })
         socket.on('disconnect', () => this.on_disconnect( connection ))
         this.onConnect(connection)
 

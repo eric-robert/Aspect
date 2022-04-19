@@ -15,6 +15,9 @@ export class Connection {
 
     private debug_latancy : number = 0
     private connectionListeners : Map<number, T.ListenerRecord<any>> = new Map()
+
+    private you_provide_time : boolean = false
+    private they_provide_time : boolean = false
    
     constructor ( config : T.ConnectionConstructor ) {
 
@@ -22,38 +25,56 @@ export class Connection {
         this.socket = config.socket
         this.debug_latancy = config.debug_latancy || 0
 
+        this.you_provide_time = config.you_provide_time
+        this.they_provide_time = config.they_provide_time
+
         this.logger = new Logger(`Connection ${this.id}`)
+
+        // For metrics
+        this.listen('latancy_ping', this.recieve_latancy_ping)
+        this.listen('finish-latancy-ping', this.finish_latancy_ping)
         this.metrics = new Metrics()
+        setInterval( () => { this.send_latancy_ping()}, 50)
+
     }
 
-    // Private
-
-    private get_wrapped ( data : any ) {
-        return {data, time: Date.now()}
+    send_latancy_ping () {
+        this.send('latancy_ping', {
+            local_0: Date.now()
+        })
     }
 
-    private get_unwrapped<Data> ( data : T.WrappedPayload<Data> ): Data {
-        this.metrics.update_latancy(data.time)
-        return data.data
+    recieve_latancy_ping (data) {
+        this.send('finish-latancy-ping', {
+            ...data,
+            remote_1: Date.now()
+        })
     }
+
+    finish_latancy_ping (data) {
+        const {local_0, remote_1} = data
+        this.metrics.update_latancy({
+            Local_0: local_0,
+            Remote_1: remote_1,
+            Local_2: Date.now()
+        })
+    }
+
 
     // Public
 
     send<Data> (event : string, data : Data) {
-        const wrapped = this.get_wrapped(data)
         const send = () => { 
-            this.socket.emit(event, wrapped) 
-            //this.logger.log(`Sending event: '${event}'`)
+            this.socket.emit(event, data) 
         }
         setTimeout(send, this.debug_latancy)
     }
 
     listen<Data> (event : string, callback : T.Callback<Data>) {
         const id = ++Connection._id
-        const listener = (wrapped_data : T.WrappedPayload<Data>) => {
+        const listener = (data : Data) => {
             setTimeout( () => {
-                const unwrapped = this.get_unwrapped(wrapped_data)
-                const response = callback(unwrapped)
+                const response = callback(data)
                 //this.logger.log(`Recieving event: '${event}'`)
                 if (event.includes('request')) {
                     this.send(event.replace('request', 'response'), response)
@@ -97,7 +118,17 @@ export class Connection {
 
     // Getters
 
-    get_latancy () : number { return this.metrics.get_latancy() }
+    get_latancy () : number { 
+        return this.metrics.get_latancy() 
+    }
+    get_time () {
+        if (this.you_provide_time) {
+            return Date.now()
+        }
+        if (this.they_provide_time) {
+            return this.metrics.get_offset() + Date.now()
+        }
+    }
     set_id (id : number) { 
         this.id = id 
         this.logger = new Logger(`Connection ${this.id}`)

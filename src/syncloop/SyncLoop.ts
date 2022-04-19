@@ -18,6 +18,7 @@ export class SyncLoop {
     private wait_window = 0
     private wait_windowSize = 0
     private running : boolean = false
+    private time : () => number
 
     // Logging
     private logger : Logger
@@ -28,8 +29,11 @@ export class SyncLoop {
         this.logger = new Logger(`Syncloop`)
         this.logger.log(`Creating Sync-Loop`)
 
+        // For syncronization
+        this.time = config.time_provider
+
         // Metrics
-        this.wait_window = Date.now()
+        this.wait_window = this.time()
         this.wait_windowSize = config.metrics_windowSize || 10000
 
         // Add Callbacks
@@ -44,7 +48,7 @@ export class SyncLoop {
     recieve_sync ( data : T.SyncronizationData ) {
 
         // Pull in the data
-        this.start_time_ms = data.start_time_ms || Date.now()
+        this.start_time_ms = data.start_time_ms || this.time()
         this.ms_per_tick = data.ms_per_tick
         this.ticks_per_sync = data.ticks_per_sync
 
@@ -84,7 +88,7 @@ export class SyncLoop {
 
         // Compute time to next tick
         const expected_next = this.current_tick * this.ms_per_tick + this.start_time_ms 
-        const end_time = Date.now()
+        const end_time = this.time()
         const next_loop = expected_next - end_time
 
         // Metrics
@@ -98,7 +102,7 @@ export class SyncLoop {
     // See's how much free time we have in our thread outside of syncloops
     private metrics_utliization_recoder () {
 
-        const now = Date.now()
+        const now = this.time()
         
         if ( now - this.wait_window > this.wait_windowSize) {
 
@@ -112,7 +116,7 @@ export class SyncLoop {
     }
 
     private get_ticksBehind () {
-        const since_start = Date.now() - this.start_time_ms
+        const since_start = this.time() - this.start_time_ms
         const target = Math.ceil(since_start / this.ms_per_tick)
         const behind = target - this.current_tick
         return {behind, target}
@@ -141,7 +145,7 @@ export class SyncLoop {
     }
 
     get_tick_in_ms ( ms : number ) {
-        const now = Date.now()
+        const now = this.time()
         const then = now + ms
         return Math.ceil((then - this.start_time_ms) / this.ms_per_tick) + 1
     }

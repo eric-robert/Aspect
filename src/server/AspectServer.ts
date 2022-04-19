@@ -38,10 +38,11 @@ export class AspectServer {
         // Create syncloop
         this.syncloop = new SyncLoop({
             on_sync : this.onSync.bind(this),
-            on_tick : this.onTick.bind(this)
+            on_tick : this.onTick.bind(this),
+            time_provider : () => Date.now()
         })
         this.syncloop.start({
-            ms_per_tick : 200,
+            ms_per_tick : 20,
             ticks_per_sync : 10
         })
 

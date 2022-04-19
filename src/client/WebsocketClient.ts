@@ -31,7 +31,7 @@ export class WebsocketClient {
         this.logger.log(`Starting Websocket Client to ip ${serverIP}`)
         
         this.socket = (io('ws://' + serverIP) as unknown) as Socket
-        this.connection = new Connection({ socket : this.socket })
+        this.connection = new Connection({ socket : this.socket, they_provide_time : true })
         this.socket.on('connect', this.on_connection.bind(this))
         this.socket.on('disconnect', this.on_disconnect.bind(this))
 
@@ -53,6 +53,10 @@ export class WebsocketClient {
     }
     public getId () {
         return this.connection.id
+    }
+
+    public get_trueTime () {
+        return this.connection.get_time()
     }
 
 }

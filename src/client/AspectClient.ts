@@ -32,13 +32,15 @@ export class AspectClient {
             modules : config.modules || []
         })
         this.connection = new WebsocketClient({
+            serverIP: config.serverIP || undefined,
             onConnect : this.onSelfConnected.bind(this),
             onDisconnect : this.onSelfDisconnected.bind(this)
         })
 
         // Create syncloop
         this.syncloop = new SyncLoop({
-            on_tick : this.onTick.bind(this)
+            on_tick : this.onTick.bind(this),
+            time_provider: () => this.connection.get_trueTime()
         })
 
         // Create Actions

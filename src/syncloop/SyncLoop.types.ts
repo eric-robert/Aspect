@@ -3,6 +3,7 @@ export interface SyncloopConstructor {
     on_tick ?: Callback_onTick
     on_sync ?: Callback_onSync
 
+    time_provider : () => number
     metrics_windowSize ?: number
 
 }

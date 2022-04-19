@@ -7,6 +7,8 @@ export interface ConnectionNetworkedData {
 export interface ConnectionConstructor {
     socket : Socket,
     debug_latancy ?: number
+    you_provide_time ?: boolean
+    they_provide_time ?: boolean
 }
 
 export type WrappedPayload<Data> = {
@@ -18,5 +20,5 @@ export type Callback<T> = (data : T) => void
 
 export interface ListenerRecord<Data> {
     event : string,
-    callback : Callback<WrappedPayload<Data>>
+    callback : Callback<Data>
 }
