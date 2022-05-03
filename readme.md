@@ -17,7 +17,7 @@ Add your own modules for greater effect.
 ### Installation
 
 ```
-    npm install fire-aspect
+npm install fire-aspect
 ```
 
 
@@ -27,13 +27,13 @@ Fire aspect aims to sync server and clients with eachother in a real time networ
 
 Classes implement syncable entity to be used across the network
 
-```
+```ts
 export class SimpleObject implements SyncableEntity<SyncData> {
 ```
 
 Then implement handlers for fire-aspect to call to sync
 
-```
+```ts
 
     public get_sync_data(): SyncData {
         return {
@@ -54,7 +54,7 @@ Then implement handlers for fire-aspect to call to sync
 
 Clients and servers then both pull in the module so it runs on both clients
 
-```
+```ts
 import {AspectClient} from '../src/index.client'
 import {SimplePhysics} from './physics.module'
 
@@ -65,7 +65,7 @@ const client = new AspectClient({
 })
 ```
 
-```
+```ts
 import {AspectServer} from '../src/index.server'
 import {SimplePhysics, SimpleObject} from './physics.module'
 import { ServerModule } from './server.module'
