@@ -55,6 +55,10 @@ export class WebsocketClient {
         return this.connection.id
     }
 
+    public get_offset () {
+        return this.connection.get_offset()
+    }
+
     public get_trueTime () {
         return this.connection.get_time()
     }

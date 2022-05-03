@@ -31,8 +31,8 @@ export class Connection {
         this.logger = new Logger(`Connection ${this.id}`)
 
         // For metrics
-        this.listen('latancy_ping', this.recieve_latancy_ping)
-        this.listen('finish-latancy-ping', this.finish_latancy_ping)
+        this.listen('latancy_ping', this.recieve_latancy_ping.bind(this))
+        this.listen('finish-latancy-ping', this.finish_latancy_ping.bind(this))
         this.metrics = new Metrics()
         setInterval( () => { this.send_latancy_ping()}, 50)
 
@@ -120,6 +120,9 @@ export class Connection {
 
     get_latancy () : number { 
         return this.metrics.get_latancy() 
+    }
+    get_offset () : number {
+        return this.metrics.get_offset()
     }
     get_time () {
         if (this.you_provide_time) {

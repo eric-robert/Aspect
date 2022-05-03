@@ -148,7 +148,8 @@ export class AspectClient {
         // Send Metrics
         if (this.pullMetrics) {
             this.pullMetrics({
-                latency : this.connection.get_latency()
+                latency : this.connection.get_latency(),
+                offset: Math.floor(this.connection.get_offset()),
             })
         }
 
